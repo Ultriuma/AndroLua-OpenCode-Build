@@ -1,5 +1,13 @@
 # ULTRIUMA AndroLua原生增强库 / ULTRIUMA AndroLua Native Enhancement Libraries
 
+[![license](https://img.shields.io/github/license/ULTRIUMA/AndroLua-OpenCode-Build.svg)](LICENSE)
+[![releases](https://img.shields.io/github/v/tag/ULTRIUMA/AndroLua-OpenCode-Build?color=C71D23&label=releases&logo=github)](https://github.com/ULTRIUMA/AndroLua-OpenCode-Build/releases)
+![](https://img.shields.io/github/last-commit/ULTRIUMA/AndroLua-OpenCode-Build.svg)
+[![Github repository](https://img.shields.io/badge/Github-repository-0969DA?logo=github)](https://github.com/ULTRIUMA/AndroLua-OpenCode-Build)
+![QQ: 2957148920](https://img.shields.io/badge/QQ-2957148920-0099FF?logo=tencentqq)
+
+---
+
 > 一套面向 **AndroLua / Lua** 的 Android 原生增强资源，由 **ULTRIUMA** 编译维护，用于为 AndroLua 项目补充 Markdown 渲染、高性能 KV 存储与一组预编译的原生 `.so` 库。
 > A curated set of Android native extensions for **AndroLua / Lua**, compiled and maintained by **ULTRIUMA**, adding Markdown rendering, high-performance KV storage, and a collection of prebuilt native `.so` libraries to AndroLua projects.
 
