@@ -1,4 +1,4 @@
-# ULTRIUMA AndroLua原生增强库 / ULTRIUMA AndroLua Native Enhancement Libraries
+# ULTRIUMA AndroLua Native Enhancement Libraries
 
 [![license](https://img.shields.io/github/license/ULTRIUMA/AndroLua-OpenCode-Build.svg)](LICENSE)
 [![releases](https://img.shields.io/github/v/tag/ULTRIUMA/AndroLua-OpenCode-Build?color=C71D23&label=releases&logo=github)](https://github.com/ULTRIUMA/AndroLua-OpenCode-Build/releases)
