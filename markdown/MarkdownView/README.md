@@ -1,5 +1,15 @@
 # MarkdownView
 
+[![license](https://img.shields.io/github/license/ULTRIUMA/AndroLua-OpenCode-Build.svg)](LICENSE)
+[![releases](https://img.shields.io/github/v/tag/ULTRIUMA/AndroLua-OpenCode-Build?color=C71D23&label=releases&logo=github)](https://github.com/ULTRIUMA/AndroLua-OpenCode-Build/releases)
+![](https://img.shields.io/github/last-commit/ULTRIUMA/AndroLua-OpenCode-Build.svg)
+[![Github repository](https://img.shields.io/badge/Github-repository-0969DA?logo=github)](https://github.com/ULTRIUMA/AndroLua-OpenCode-Build)
+![QQ: 2957148920](https://img.shields.io/badge/QQ-2957148920-0099FF?logo=tencentqq)
+
+---
+
+
+
 > 继承自 `WebView` 的 Markdown 渲染控件，编译为独立 `classes.dex`，供 AndroLua `loadDex` 加载。
 
 - **完全离线**：vendor JS（marked 12 / highlight.js 11 / KaTeX 0.16）已 ES5 转译、KaTeX 20 个字体 data URI 内联，单 dex 无任何外部依赖
