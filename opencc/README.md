@@ -3,6 +3,14 @@
 OpenCC（开放中文转换）的 AndroLua / Lua 5.3 绑定。用于简体 ↔ 繁体及台湾 / 香港用字转换。
 基于 OpenCC 1.4.2 的 C API，模块名 `opencc`，导出入口 `luaopen_opencc`。
 
+[![license](https://img.shields.io/github/license/ULTRIUMA/AndroLua-OpenCode-Build.svg)](LICENSE)
+[![releases](https://img.shields.io/github/v/tag/ULTRIUMA/AndroLua-OpenCode-Build?color=C71D23&label=releases&logo=github)](https://github.com/ULTRIUMA/AndroLua-OpenCode-Build/releases)
+![](https://img.shields.io/github/last-commit/ULTRIUMA/AndroLua-OpenCode-Build.svg)
+[![Github repository](https://img.shields.io/badge/Github-repository-0969DA?logo=github)](https://github.com/ULTRIUMA/AndroLua-OpenCode-Build)
+![QQ: 2957148920](https://img.shields.io/badge/QQ-2957148920-0099FF?logo=tencentqq)
+
+---
+
 ## 1. 部署
 
 ### 1.1 so 文件
