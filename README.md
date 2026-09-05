@@ -34,7 +34,7 @@ This repository bundles three kinds of drop-in AndroLua resources, shipped as `.
 
 | 模块 / Module | 用途 / Purpose | 产物 / Artifact |
 | --- | --- | --- |
-| `markdown/` | 在 Android 上渲染 Markdown（WebView 方案 + Markwon 方案） | `markdown.dex`、`markwonx.dex` |
+| `markdown/` | 在 Android 上渲染 Markdown（WebView 方案 + Markwon 方案） | `MarkdownView_v1.2.0.dex`、`MarkwonX_v1.0.0.dex` |
 | `mmkv/` | 把腾讯 MMKV 编译成单个 `libmmkv.so`，供 Lua `require("mmkv")` 直接调用 | `libmmkv.so` + `LuaMMKV.lua` |
 | `Nativelib/` | 28 个预编译原生库（base64 / lfs / lpeg / sqlite / zip / opencc …）+ `libc++_shared.so` | 3 个 ABI × 29 个 `.so` |
 
@@ -50,10 +50,11 @@ Build info: MMKV author **ULTRIUMA**, upstream **MMKV 2.4.2**, built **2026-08-3
 ├── License                 # Apache-2.0（顶层）
 ├── markdown/               # Markdown 渲染组件
 │   ├── License             # Apache-2.0
-│   ├── MARKDOWN.md         # MarkdownView 文档
-│   ├── MARKDWONX.md        # markwonx 文档（文件名 typo，内容为 markwonx）
-│   ├── markdown.dex        # ≈1.8 MB，WebView 方案（com.ocssfun.markdown）
-│   └── markwonx.dex        # ≈7.6 MB，Markwon 方案（com.ocssfun.markwon）
+│   ├── MARKDOWN.md              # MarkdownView 文档
+│   ├── MARKDWONX.md             # MarkwonX 文档（文件名 typo，内容为 markwonx）
+│   ├── MarkdownView_v1.0.0.dex  # ≈1.8 MB，WebView 方案（com.ocssfun.markdown）
+│   ├── MarkdownView_v1.2.0.dex  # ≈1.8 MB，v1.2.0 修复同名重载问题
+│   └── MarkwonX_v1.0.0.dex     # ≈7.6 MB，Markwon 方案（com.ocssfun.markwon）
 ├── mmkv/                   # MMKV Lua 绑定
 │   ├── License             # Apache-2.0
 │   ├── LuaMMKV.md          # 完整文档
@@ -75,11 +76,16 @@ Build info: MMKV author **ULTRIUMA**, upstream **MMKV 2.4.2**, built **2026-08-3
 
 ## 1. Markdown 渲染 / Markdown Rendering
 
-### 1.1 MarkdownView（`markdown.dex`）
+### 1.1 MarkdownView（`MarkdownView_v1.2.0.dex`）
 
 **中文** — 继承自 `WebView` 的离线 Markdown 渲染控件，编译为独立 `classes.dex`，供 AndroLua `loadDex` 加载。完全离线（marked 12 / highlight.js 11 / KaTeX 0.16 已内联，无任何外部依赖），内置 ULTRIUMA / GitHub 双样式并均带完整亮暗双主题。包名 `com.ocssfun.markdown`，产物约 1.8 MB（min-api 21），第三方 Java 依赖为无。支持图片自动 Base64 内联、统计、渲染开关与自定义 CSS 注入。
 
 **English** — An offline Markdown rendering widget extending `WebView`, compiled into a standalone `classes.dex` for AndroLua `loadDex`. Fully offline (marked 12 / highlight.js 11 / KaTeX 0.16 inlined, zero external deps), with two built-in styles (ULTRIUMA / GitHub) each offering complete light & dark themes. Package `com.ocssfun.markdown`, ~1.8 MB (min-api 21), no third-party Java dependencies. Supports automatic Base64 image inlining, statistics, render toggles, and custom CSS injection.
+
+**v1.2.0 变更 / Changelog:**
+
+v1.2.0 修复了 `setMarkdown(File)` 与 `setMarkdown(String)` 同名重载导致 AndroLua 反射分派静默失败（白屏）的问题。已移除 File 重载，新增唯一命名的 `setMarkdownFile(File)` / `setMarkdownText(String)`。
+v1.2.0 fixes the silent failure (white screen) caused by `setMarkdown(File)` and `setMarkdown(String)` having the same method name, which confused AndroLua's reflection dispatcher. The File overload has been removed; `setMarkdownFile(File)` and `setMarkdownText(String)` are now the unique entry points.
 
 最小用法 / Minimal usage：
 
@@ -90,12 +96,14 @@ import "com.ocssfun.markdown.MarkdownView"
 
 local mdv = MarkdownView(activity)
 frame.addView(mdv)
-mdv.setMarkdown("# 标题\n正文 **加粗** `code`")
+mdv.setMarkdownText("# 标题\n正文 **加粗** `code`")
+-- 或从文件加载 / or load from file:
+-- mdv.setMarkdownFile("/sdcard/README.md")
 mdv.setMarkdownStyle(MarkdownView.STYLE_GITHUB)
 mdv.setDarkMode(MarkdownView.FORCE_DARK_AUTO)
 ```
 
-### 1.2 markwonx（`markwonx.dex`）
+### 1.2 MarkwonX（`MarkwonX_v1.0.0.dex`）
 
 **中文** — 基于 **Markwon 4.6.2 + Prism4j** 的 Markdown 渲染 dex，已自带深色主题、圆角引用块/行内代码、可点链接、图片与 shields.io SVG 徽章。版本 v7.4.4，约 7.6 MB，5844 个类，单 `classes.dex`（dex 035，min-api 21）。**不含 LaTeX 公式**（v7.4.x 起移除）。注意：加载网络图片需宿主 APK 声明 `android.permission.INTERNET`。
 
