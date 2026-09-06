@@ -18,21 +18,32 @@
 
 ```
 AndroLua IDE Bin/
-├── README.md               # 本文件
-├── OpenLuaEvo_v.1.6.4.apk  # OpenLuaEvo IDE 安装包（v1.6.4）
-└── lua/
-    └── bin.lua              # APK 打包脚本
+├── README.md
+├── lua/
+│   └── bin.lua                              # APK 打包脚本
+├── OpenLuaEvo_1.6.4_sign.APK               # 通用签名版（all ABI）
+├── OpenLuaEvo_1.6.4_sign_arm64-v8a.APK     # arm64-v8a 签名版
+├── OpenLuaEvo_1.6.4_sign_armeabi-v7a.APK   # armeabi-v7a 签名版
+├── OpenLuaEvo_1.6.4_sign_armeabi.APK       # armeabi 签名版
+└── *.APK.idsig                              # 对应签名验证文件
 ```
 
-## 文件说明 / File Descriptions
+## APK 说明
 
-### `OpenLuaEvo_v.1.6.4.apk`
+OpenLuaEvo v1.6.4 已签名版本，按目标架构分发：
 
-OpenLuaEvo IDE 的 APK 安装包，版本 v1.6.4。OpenLuaEvo 是 AndroLua+ 的社区增强分支，提供改进的编辑器体验与打包功能。
+| 文件 | 目标 ABI | 适用设备 |
+| --- | --- | --- |
+| `OpenLuaEvo_1.6.4_sign.APK` | all | 通用，包含多 ABI native 库 |
+| `OpenLuaEvo_1.6.4_sign_arm64-v8a.APK` | arm64-v8a | 64 位 ARM 设备（主流） |
+| `OpenLuaEvo_1.6.4_sign_armeabi-v7a.APK` | armeabi-v7a | 32 位 ARM 设备 |
+| `OpenLuaEvo_1.6.4_sign_armeabi.APK` | armeabi | 旧版 ARM 设备 |
 
-### `lua/bin.lua`
+> `.idsig` 文件为 APK 签名验证附加数据，随 APK 一同分发。
 
-AndroLua 项目 APK 打包脚本，功能包括：
+## `lua/bin.lua` — APK 打包脚本
+
+AndroLua 项目打包为独立 APK 的核心脚本，功能包括：
 
 - 读取工程 `init.lua` 配置（包名、版本号、应用名等）
 - 递归扫描 Lua 源文件，编译为 `.luac`
@@ -63,7 +74,7 @@ bin(activity.getLuaExtDir("project/myapp") .. "/")
 | 来源 | 说明 |
 | --- | --- |
 | AndroLua+ 官方 | 基础打包框架、console 编译器接口 |
-| OpenLuaEvo 社区 | Teal（`.tl`）支持、打包流程优化 |
+| OpenLuaEvo 社区 | Teal（`.tl`）支持、打包流程优化、签名 APK 分发 |
 | ULTRIUMA | 集成整理、版本封包、文档维护 |
 
 > 本文件夹作为 AndroLua 生态的参考实现保留，不保证与最新版 AndroLua+ / OpenLuaEvo 的 API 变化同步。如遇问题请参考对应社区的最新文档。

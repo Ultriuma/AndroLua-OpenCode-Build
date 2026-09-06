@@ -181,7 +181,8 @@ local function binapk(luapath, apkpath)
   end
 
   replace["libluajava.so"] = false
-
+  replace["libc++_shared.so"] = false
+  
   local function tl2lua(tl_path)
     local file = io.open(tl_path, "r")
     if file then
