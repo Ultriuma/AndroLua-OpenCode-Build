@@ -7,3 +7,11 @@
 ![QQ: 2957148920](https://img.shields.io/badge/QQ-2957148920-0099FF?logo=tencentqq)
 
 ---
+
+> MarkdownView screenshots
+> cjl1u6pmv71mmbkukvwqk2rds5s0oksw1at8vz0lr7ev4f5n4ffa8d4688
+
+![MarkdownView Image 1](https://github.com/Ultriuma/AndroLua-OpenCode-Build/blob/main/screenshot/IMG_20260907_004233.jpg)
+![MarkdownView Image 2](https://github.com/Ultriuma/AndroLua-OpenCode-Build/blob/main/screenshot/IMG_20260907_004250.jpg)
+![MarkdownView Image 3](https://github.com/Ultriuma/AndroLua-OpenCode-Build/blob/main/screenshot/IMG_20260907_004302.jpg)
+
