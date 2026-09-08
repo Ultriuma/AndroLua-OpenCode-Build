@@ -307,6 +307,17 @@ local function binapk(luapath, apkpath)
       replace["res/drawable/icon.png"] = true
       copy(FileInputStream(wel), out)
     end
+    -- activity-alias 多图标: 工程目录/icon/slots/slot1.png - slot8.png 任一存在
+    -- 就替换基础包 res/drawable/ 里同名的 slot 图标 (与 icon.png 替换逻辑一致)
+    for n = 1, 8 do
+      local slot = File(luapath .. "icon/slots/slot" .. n .. ".png")
+      if slot.exists() then
+        local entry = ZipEntry("res/drawable/slot" .. n .. ".png")
+        out.putNextEntry(entry)
+        replace["res/drawable/slot" .. n .. ".png"] = true
+        copy(FileInputStream(slot), out)
+      end
+    end
    else
     return "error"
   end

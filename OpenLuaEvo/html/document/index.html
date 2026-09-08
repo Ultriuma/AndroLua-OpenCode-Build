@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AndroLua — 安卓平台 Lua 脚本编程工具</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+          --bg: #000; --bg-s: #0a0a0a; --bg-c: #111; --bg-code: #181818;
+          --border: #222; --border-h: #444;
+          --text: #ededed; --text-s: #888; --text-m: #555;
+          --radius: 12px; --sw: 270px;
+        }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+        
+        .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sw); background: var(--bg-s); border-right: 1px solid var(--border); overflow-y: auto; padding: 24px 0; z-index: 100; scrollbar-width: thin; scrollbar-color: #333 transparent; }
+        .sidebar::-webkit-scrollbar { width: 4px; } .sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+        .sidebar .logo { padding: 0 20px 20px; font-weight: 700; font-size: 1.05rem; letter-spacing: -0.02em; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+        .sidebar .logo span { color: var(--text-m); font-weight: 400; }
+        .sidebar .sl { padding: 14px 20px 4px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-m); }
+        .sidebar a { display: block; padding: 4px 20px; font-size: 0.8rem; color: var(--text-s); text-decoration: none; transition: color 0.15s, background 0.15s; border-left: 2px solid transparent; }
+        .sidebar a:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+        .sidebar a.active { color: var(--text); border-left-color: var(--text); }
+        .sidebar a.sub { padding-left: 34px; font-size: 0.76rem; color: var(--text-m); }
+        .sidebar a.sub:hover { color: var(--text-s); }
+        
+        .main { margin-left: var(--sw); min-height: 100vh; }
+        
+        .hero { padding: 90px 48px 50px; max-width: 780px; }
+        .hero h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 14px; }
+        .hero p { font-size: 1.05rem; color: var(--text-s); max-width: 560px; line-height: 1.6; margin-bottom: 24px; }
+        .hero .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 999px; font-size: 0.85rem; font-weight: 500; text-decoration: none; transition: all 0.2s; cursor: pointer; border: none; }
+        .btn-p { background: #fff; color: #000; } .btn-p:hover { background: #e0e0e0; transform: translateY(-1px); }
+        .btn-s { background: transparent; color: var(--text); border: 1px solid var(--border); } .btn-s:hover { border-color: var(--border-h); background: var(--bg-s); }
+        
+        section { max-width: 780px; padding: 52px 48px; }
+        section + section { border-top: 1px solid var(--border); }
+        h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 10px; }
+        h3 { font-size: 1.08rem; font-weight: 600; margin-top: 28px; margin-bottom: 6px; }
+        h4 { font-size: 0.93rem; font-weight: 600; margin-top: 18px; margin-bottom: 5px; }
+        p { color: var(--text-s); margin-bottom: 12px; }
+        ul, ol { color: var(--text-s); margin-bottom: 12px; padding-left: 1.4em; }
+        li { margin-bottom: 3px; }
+        
+        pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; overflow-x: auto; margin: 12px 0 18px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.7; color: #ccc; }
+        code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--bg-code); padding: 2px 5px; border-radius: 4px; border: 1px solid var(--border); }
+        pre code { background: none; border: none; padding: 0; }
+        .kw { color: #fff; font-weight: 500; } .str { color: #888; } .cmt { color: #555; font-style: italic; } .fn { color: #aaa; } .num { color: #999; }
+        
+        .api-list { margin: 18px 0; }
+        .api-item { border-bottom: 1px solid var(--border); padding: 16px 0; }
+        .api-item:last-child { border-bottom: none; }
+        .api-item .sig { font-family: 'JetBrains Mono', monospace; font-size: 0.86rem; color: var(--text); margin-bottom: 4px; }
+        .api-item .desc { font-size: 0.82rem; color: var(--text-m); margin: 0; line-height: 1.5; }
+        .tag { display: inline-block; font-size: 0.66rem; padding: 2px 6px; border-radius: 4px; background: var(--bg-code); border: 1px solid var(--border); color: var(--text-s); margin-right: 4px; vertical-align: middle; }
+        
+        table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; font-size: 0.83rem; }
+        th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+        th { color: var(--text-m); font-weight: 600; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.04em; }
+        td { color: var(--text-s); }
+        
+        
+        footer { border-top: 1px solid var(--border); padding: 28px 48px; color: var(--text-m); font-size: 0.76rem; }
+        
+        .index-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 32px 0 0; }
+        .index-grid .ig { display: flex; flex-direction: column; }
+        .index-grid .ig-head { padding: 14px 18px 8px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-m); background: var(--bg-s); border-bottom: 1px solid var(--border); }
+        .index-grid a { display: block; padding: 4px 18px; font-size: 0.8rem; color: var(--text-s); text-decoration: none; transition: color 0.15s; background: var(--bg-c); }
+        .index-grid a:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+        .index-grid a:last-child { padding-bottom: 10px; }
+        
+        @media (max-width: 900px) {
+          .sidebar { display: none; } .main { margin-left: 0; }
+          .hero { padding: 70px 20px 30px; } section { padding: 36px 20px; }
+          pre { padding: 12px; font-size: 0.74rem; } footer { padding: 20px; }
+          .index-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="sidebar">
+        <div class="logo">AndroLua <span>docs</span></div>
+        <div class="sl">概述</div>
+        <a href="#intro">简介</a>
+        <a href="#quickstart">快速开始</a>
+
+        <div class="sl">Lua 基础</div>
+        <a href="#lua-types">值与类型</a>
+        <a href="#lua-vars">变量</a>
+        <a href="#lua-lexical">词法约定</a>
+        <a href="#lua-operators">运算符</a>
+        <a class="sub" href="#op-math">数学运算</a>
+        <a class="sub" href="#op-bit">位运算</a>
+        <a class="sub" href="#op-compare">比较</a>
+        <a class="sub" href="#op-logic">逻辑</a>
+        <a class="sub" href="#op-string">字符串连接与取长度</a>
+        <a class="sub" href="#op-prec">优先级</a>
+        <a href="#lua-control">控制结构</a>
+        <a class="sub" href="#ctrl-if">if / elseif / else</a>
+        <a class="sub" href="#ctrl-while">while</a>
+        <a class="sub" href="#ctrl-repeat">repeat..until</a>
+        <a class="sub" href="#ctrl-for">for</a>
+        <a class="sub" href="#ctrl-break">break / return / goto</a>
+        <a href="#lua-functions">函数</a>
+        <a href="#lua-table">表</a>
+        <a href="#lua-scope">可见性规则</a>
+        <a href="#lua-metatable">元表与元方法</a>
+        <a href="#lua-coroutine">协程</a>
+        <a href="#lua-gc">垃圾收集</a>
+        <a href="#lua-error">错误处理</a>
+
+        <div class="sl">标准库</div>
+        <a href="#lib-basic">基础函数</a>
+        <a href="#lib-table">表操作</a>
+        <a href="#lib-string">字符串</a>
+        <a href="#lib-math">数学</a>
+        <a href="#lib-io">I/O</a>
+        <a href="#lib-os">操作系统</a>
+        <a href="#lib-debug">调试</a>
+
+        <div class="sl">AndroLua 专题</div>
+        <a href="#al-import">导入模块</a>
+        <a href="#al-method">方法与属性</a>
+        <a href="#al-layout">布局表</a>
+        <a href="#al-canvas">Canvas 绘图</a>
+        <a href="#al-opengl">OpenGL</a>
+        <a href="#al-event">事件与回调</a>
+        <a href="#al-array">使用数组</a>
+        <a href="#al-thread">线程与异步</a>
+        <a href="#al-modules">内置模块</a>
+        <a href="#al-api">核心 API</a>
+        <a href="#al-pack">打包发布</a>
+    </nav>
+
+    <div class="main">
+
+        <div class="hero">
+            <h1>AndroLua 文档</h1>
+            <p>基于 LuaJava 的安卓平台轻量级脚本编程工具。简洁优雅的 Lua 语言，完整的安卓 API 支持，在手机上编写应用。</p>
+            <div class="actions">
+                <a class="btn btn-p" href="#quickstart">快速开始</a>
+                <a class="btn btn-s" href="#al-api">API 参考</a>
+            </div>
+        </div>
+
+        <!-- INDEX -->
+        <section style="border-top: none; padding-bottom: 20px;">
+            <div class="index-grid">
+                <div class="ig">
+                    <div class="ig-head">概述</div>
+                    <a href="#intro">简介</a>
+                    <a href="#quickstart">快速开始</a>
+                </div>
+                <div class="ig">
+                    <div class="ig-head">Lua 基础</div>
+                    <a href="#lua-types">值与类型</a>
+                    <a href="#lua-vars">变量</a>
+                    <a href="#lua-lexical">词法约定</a>
+                    <a href="#lua-operators">运算符</a>
+                    <a href="#lua-control">控制结构</a>
+                    <a href="#lua-functions">函数</a>
+                    <a href="#lua-table">表</a>
+                    <a href="#lua-scope">可见性规则</a>
+                    <a href="#lua-metatable">元表与元方法</a>
+                    <a href="#lua-coroutine">协程</a>
+                    <a href="#lua-gc">垃圾收集</a>
+                    <a href="#lua-error">错误处理</a>
+                </div>
+                <div class="ig">
+                    <div class="ig-head">标准库</div>
+                    <a href="#lib-basic">基础函数</a>
+                    <a href="#lib-table">表操作</a>
+                    <a href="#lib-string">字符串</a>
+                    <a href="#lib-math">数学</a>
+                    <a href="#lib-io">I/O</a>
+                    <a href="#lib-os">操作系统</a>
+                    <a href="#lib-debug">调试</a>
+                </div>
+                <div class="ig">
+                    <div class="ig-head">AndroLua 专题</div>
+                    <a href="#al-import">导入模块</a>
+                    <a href="#al-method">方法与属性</a>
+                    <a href="#al-layout">布局表</a>
+                    <a href="#al-canvas">Canvas 绘图</a>
+                    <a href="#al-opengl">OpenGL</a>
+                    <a href="#al-event">事件与回调</a>
+                    <a href="#al-array">使用数组</a>
+                    <a href="#al-thread">线程与异步</a>
+                    <a href="#al-modules">内置模块</a>
+                    <a href="#al-api">核心 API</a>
+                    <a href="#al-pack">打包发布</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 这是这是第一部分 ==================== PART 1: INTRO ==================== -->
+
+        <section id="intro">
+            <h2>简介</h2>
+            <p>AndroLua 是基于 LuaJava 开发的安卓平台轻量级脚本编程语言工具，既具有 Lua 简洁优雅的特质，又支持绝大部分安卓 API，可以使你在手机上快速编写小型应用。</p>
+            <p>目前程序内置 bson, canvas, cjson, ftp, gl, http, import, md5, smtp, socket, sensor.so, xml, zlib。</p>
+            <p>每个脚本开头应该写上 <code>require "import"</code> 以导入 import 模块，简化写代码的难度。AndroLua 库函数在 import 模块中，为便于使用都是全局变量。</p>
+            <p>关于 Lua 的语法和 Android API 请参考 <a href="http://www.lua.org" style="color:var(--text-s)">Lua 官网</a> 和 <a href="http://android-doc.com/reference/packages.html" style="color:var(--text-s)">Android 中文 API</a>。</p>
+        </section>
+
+        <section id="quickstart">
+            <h2>快速开始</h2>
+            <h3>创建布局与组件</h3>
+            <pre><code><span class="kw">require</span> <span class="str">"import"</span>
+<span class="kw">import</span> <span class="str">"android.widget.*"</span>
+<span class="kw">import</span> <span class="str">"android.view.*"</span>
+
+layout = <span class="fn">LinearLayout</span>(activity)
+activity.<span class="fn">setContentView</span>(layout)
+
+button = <span class="fn">Button</span>(activity)
+layout.<span class="fn">addView</span>(button)</code></pre>
+            <p>注：<code>activity</code> 是当前窗口的 Context 对象，如果习惯写 this 只需要 <code>this = activity</code>，之后就可以 <code>button = Button(this)</code>。</p>
+
+            <h3>使用事件</h3>
+            <pre><code><span class="cmt">-- 创建事件处理函数</span>
+<span class="kw">function</span> <span class="fn">click</span>(s)
+  <span class="fn">print</span>(<span class="str">"点击"</span>)
+<span class="kw">end</span>
+
+<span class="cmt">-- 把函数添加到事件接口</span>
+listener = View.OnClickListener{onClick = click}
+
+<span class="cmt">-- 把接口注册到组件</span>
+button.<span class="fn">setOnClickListener</span>(listener)
+
+<span class="cmt">-- 也可以使用匿名函数</span>
+button.<span class="fn">setOnClickListener</span>(View.OnClickListener {
+  onClick = <span class="kw">function</span>(s)
+    <span class="fn">print</span>(<span class="str">"点击"</span>)
+  <span class="kw">end</span>
+})</code></pre>
+
+            <h3>回调方法</h3>
+            <pre><code><span class="kw">function</span> <span class="fn">onResume</span>()
+  <span class="fn">print</span>(<span class="str">"返回程序"</span>)
+<span class="kw">end</span>
+
+<span class="kw">function</span> <span class="fn">onDestroy</span>()
+  <span class="fn">print</span>(<span class="str">"程序已退出"</span>)
+<span class="kw">end</span>
+
+<span class="kw">function</span> <span class="fn">onCreateOptionsMenu</span>(menu)
+  menu.<span class="fn">add</span>(<span class="str">"菜单"</span>)
+<span class="kw">end</span></code></pre>
+            <p>支持：<code>onCreate</code> <code>onStart</code> <code>onResume</code> <code>onPause</code> <code>onStop</code> <code>onDestroy</code> <code>onActivityResult</code> <code>onCreateOptionsMenu</code> <code>onCreateContextMenu</code> <code>onMenuItemSelected</code></p>
+
+            <h3>按键与触控</h3>
+            <pre><code><span class="kw">function</span> <span class="fn">onKeyDown</span>(code, event)
+  <span class="fn">print</span>(code, event)
+  <span class="kw">return true</span>
+<span class="kw">end</span>
+
+<span class="kw">function</span> <span class="fn">onTouchEvent</span>(event)
+  <span class="fn">print</span>(event)
+  <span class="kw">return true</span>
+<span class="kw">end</span></code></pre>
+            <p>支持 <code>onKeyDown</code> <code>onKeyUp</code> <code>onKeyLongPress</code> <code>onTouchEvent</code>，函数必须返回布尔值。</p>
+        </section>
+
+        <!-- 第二 ==================== PART 2: LUA ==================== -->
+
+        <section id="lua-types">
+            <h2>值与类型</h2>
+            <p>Lua 是动态类型语言。变量没有类型；只有值有类型。八种基本类型：</p>
+            <table>
+                <tr>
+                    <th>类型</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td><code>nil</code></td>
+                    <td>表示值不存在。nil 和 false 都导致条件判断为假，其余均为真（包括 0 和空字符串）</td>
+                </tr>
+                <tr>
+                    <td><code>boolean</code></td>
+                    <td>true 和 false</td>
+                </tr>
+                <tr>
+                    <td><code>number</code></td>
+                    <td>整数（64 位）和浮点数（双精度 64 位），按需自动转换</td>
+                </tr>
+                <tr>
+                    <td><code>string</code></td>
+                    <td>不可变字节序列。8 位友好，可包含零字节。与编码无关</td>
+                </tr>
+                <tr>
+                    <td><code>function</code></td>
+                    <td>Lua 函数或 C 函数，统一类型</td>
+                </tr>
+                <tr>
+                    <td><code>userdata</code></td>
+                    <td>C 数据内存块。分完全用户数据（Lua 管理）和轻量用户数据（C 指针）</td>
+                </tr>
+                <tr>
+                    <td><code>thread</code></td>
+                    <td>独立执行序列，用于协程</td>
+                </tr>
+                <tr>
+                    <td><code>table</code></td>
+                    <td>关联数组。可使用除 nil 和 NaN 外的任何值做键。是 Lua 唯一的数据结构</td>
+                </tr>
+            </table>
+            <p>所有值都是一等公民：可保存在变量中、作为参数传递、作为返回值。表、函数、线程、完全用户数据是对象：变量保存的是引用，赋值和传递不隐式拷贝。</p>
+            <p>序列指正整数键集为 {1..n} 的表。用 <code>a.name</code> 语法糖代替 <code>a["name"]</code>。数字键 2.0 自动转为整数 2。</p>
+            <p><code>type(v)</code> 返回值类型的字符串表示。</p>
+        </section>
+
+        <section id="lua-vars">
+            <h2>变量</h2>
+            <p>三种变量：全局变量、局部变量、表的域。未声明为 <code>local</code> 的即为全局变量。首次赋值前值为 nil。</p>
+            <pre><code>x = <span class="num">10</span>              <span class="cmt">-- 全局变量</span>
+<span class="kw">local</span> y = <span class="num">20</span>        <span class="cmt">-- 局部变量</span>
+t = {}
+t[<span class="str">"key"</span>] = <span class="num">1</span>        <span class="cmt">-- 表的域</span>
+t.key = <span class="num">1</span>            <span class="cmt">-- 等价写法</span></code></pre>
+            <p>对全局变量 x 的操作等价于 _ENV.x。_ENV 是每个代码块的外部局部变量，永远不是自由名字。</p>
+        </section>
+
+        <section id="lua-lexical">
+            <h2>词法约定</h2>
+            <p>标识符：非数字开头的字母、下划线、数字构成。大小写敏感。</p>
+            <h4>保留字</h4>
+            <pre><code>and break do else elseif end false for function
+goto if in local nil not or repeat return then
+true until while</code></pre>
+            <h4>字符串</h4>
+            <p>单引号或双引号括起。转义：<code>\a \b \f \n \r \t \v \\ \" \' \0 \z</code>。<code>\xXX</code> 两个十六进制。<code>\ddd</code> 一到三个十进制。<code>\u{XXX}</code> UTF-8 Unicode。</p>
+            <p>长括号 <code>[[...]]</code> 可包含多行，不处理转义。<code>[=[...]=]</code> 为一级长括号。</p>
+            <pre><code><span class="str">'alo\n123"'</span>
+<span class="str">"alo\n123\""</span>
+<span class="str">[[alo 123"]]</span>
+<span class="str">[==[alo 123"]== ]</span></code></pre>
+            <h4>数字</h4>
+            <p>整数：<code>3 345 0xff 0xBEBADA</code>。浮点数：<code>3.0 3.1416 314.16e-2 0xA23p-4 0X1.921FB54442D18P+1</code>。</p>
+            <h4>注释</h4>
+            <p>短注释：<code>-- 行尾</code>。长注释：<code>--[[ 多行 ]]</code>。</p>
+            <h4>其它符记</h4>
+            <pre><code>+ - * / % ^ # & ~ | << >> // == ~= <= >= < > =
+( ) { } [ ] :: ; : , . .. ...</code></pre>
+        </section>
+
+        <section id="lua-operators">
+            <h2>运算符</h2>
+            <h3 id="op-math">数学运算</h3>
+            <table>
+                <tr>
+                    <th>符号</th>
+                    <th>操作</th>
+                </tr>
+                <tr>
+                    <td><code>+</code></td>
+                    <td>加法</td>
+                </tr>
+                <tr>
+                    <td><code>-</code></td>
+                    <td>减法 / 取负（一元）</td>
+                </tr>
+                <tr>
+                    <td><code>*</code></td>
+                    <td>乘法</td>
+                </tr>
+                <tr>
+                    <td><code>/</code></td>
+                    <td>浮点除法（结果总是浮点数）</td>
+                </tr>
+                <tr>
+                    <td><code>//</code></td>
+                    <td>向下取整除法（向负无穷取整）</td>
+                </tr>
+                <tr>
+                    <td><code>%</code></td>
+                    <td>取模（向下取整除法的余数）</td>
+                </tr>
+                <tr>
+                    <td><code>^</code></td>
+                    <td>乘方（总是浮点数，支持非整数指数）</td>
+                </tr>
+            </table>
+            <p>两整数用整数运算，结果为整数。否则转浮点数。整数溢出按 2^64 取模环绕。</p>
+
+            <h3 id="op-bit">位运算</h3>
+            <table>
+                <tr>
+                    <th>符号</th>
+                    <th>操作</th>
+                </tr>
+                <tr>
+                    <td><code>&</code></td>
+                    <td>按位与</td>
+                </tr>
+                <tr>
+                    <td><code>|</code></td>
+                    <td>按位或</td>
+                </tr>
+                <tr>
+                    <td><code>~</code> (二元)</td>
+                    <td>按位异或</td>
+                </tr>
+                <tr>
+                    <td><code>>></code></td>
+                    <td>右移（零填充）</td>
+                </tr>
+                <tr>
+                    <td><code>&lt;&lt;</code></td>
+                    <td>左移（零填充）</td>
+                </tr>
+                <tr>
+                    <td><code>~</code> (一元)</td>
+                    <td>按位非</td>
+                </tr>
+            </table>
+            <p>操作数转整数，结果为整数。移位负值则反方向。移位超过整数位数结果为零。</p>
+
+            <h3 id="op-compare">比较</h3>
+            <p><code>== ~= &lt; &gt; &lt;= &gt;=</code>。结果为 boolean。先比较类型，类型不同即不等。数字按规则比较（两整数比整数，否则转浮点）。字符串按字典序。表/用户数据/线程按引用比较。<code>==</code> 不做类型转换。<code>a > b</code> 转译为 <code>b &lt; a</code>，<code>a >= b</code> 转译为 <code>b &lt;= a</code>。</p>
+
+            <h3 id="op-logic">逻辑</h3>
+            <p><code>and or not</code>。false 和 nil 为假，其余为真。短路求值。</p>
+            <pre><code><span class="num">10</span> <span class="kw">or</span> <span class="num">20</span>         <span class="cmt">--> 10</span>
+<span class="num">10</span> <span class="kw">or</span> <span class="fn">error</span>()    <span class="cmt">--> 10</span>
+<span class="kw">nil</span> <span class="kw">or</span> <span class="str">"a"</span>       <span class="cmt">--> "a"</span>
+<span class="kw">nil</span> <span class="kw">and</span> <span class="num">10</span>      <span class="cmt">--> nil</span>
+<span class="kw">false</span> <span class="kw">and</span> <span class="fn">error</span>() <span class="cmt">--> false</span>
+<span class="kw">false</span> <span class="kw">or</span> <span class="kw">nil</span>     <span class="cmt">--> nil</span>
+<span class="num">10</span> <span class="kw">and</span> <span class="num">20</span>        <span class="cmt">--> 20</span></code></pre>
+
+            <h3 id="op-string">字符串连接与取长度</h3>
+            <p>连接：<code>..</code>（两个点）。取长度：<code>#</code>。</p>
+            <pre><code><span class="str">"hello"</span> .. <span class="str">" "</span> .. <span class="str">"world"</span>   <span class="cmt">--> "hello world"</span>
+#{<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>}               <span class="cmt">--> 3</span></code></pre>
+            <p>序列长度：正整数键集等于 {1..n} 的表，n 为长度。<code>{10, 20, nil, 40}</code> 不是序列（有键 4 无键 3）。</p>
+
+            <h3 id="op-prec">优先级（从低到高）</h3>
+            <pre><code>or
+and
+&lt; &gt; &lt;= &gt;= ~= ==
+|
+~
+&amp;
+&lt;&lt; &gt;&gt;
+..
++ -
+* / // %
+一元运算符 (not # - ~)
+^</code></pre>
+            <p><code>..</code> 和 <code>^</code> 从右至左结合，其余从左至右。</p>
+        </section>
+
+        <section id="lua-control">
+            <h2>控制结构</h2>
+            <h3 id="ctrl-if">if / elseif / else</h3>
+            <pre><code><span class="kw">if</span> cond <span class="kw">then</span>
+  block
+<span class="kw">elseif</span> cond2 <span class="kw">then</span>
+  block
+<span class="kw">else</span>
+  block
+<span class="kw">end</span></code></pre>
+            <h3 id="ctrl-while">while</h3>
+            <pre><code><span class="kw">while</span> cond <span class="kw">do</span> block <span class="kw">end</span></code></pre>
+            <h3 id="ctrl-repeat">repeat..until</h3>
+            <pre><code><span class="kw">repeat</span> block <span class="kw">until</span> cond</code></pre>
+            <p>条件表达式可引用循环内部的局部变量（作用域包含 until 后的表达式）。</p>
+            <h3 id="ctrl-for">for</h3>
+            <p><strong>数字 for：</strong>三个表达式只计算一次，结果必须是数字。循环变量是局部变量。</p>
+            <pre><code><span class="kw">for</span> i = <span class="num">1</span>, <span class="num">10</span>, <span class="num">2</span> <span class="kw">do</span>   <span class="cmt">-- 起始, 终止, 步长(默认1)</span>
+  <span class="fn">print</span>(i)
+<span class="kw">end</span></code></pre>
+            <p><strong>通用 for：</strong>迭代器函数返回 nil 时停止。</p>
+            <pre><code><span class="kw">for</span> k, v <span class="kw">in</span> <span class="fn">pairs</span>(t) <span class="kw">do</span>
+  <span class="fn">print</span>(k, v)
+<span class="kw">end</span></code></pre>
+            <h3 id="ctrl-break">break / return / goto</h3>
+            <p><code>break</code> 跳出最内层循环。<code>return</code> 返回值，必须是语句块最后一条（中间返回用 <code>do return end</code>）。<code>goto Name</code> 跳转到 <code>::Name::</code> 标签。标签在定义所在语句块内可见（内嵌函数和内嵌同名标签除外）。</p>
+        </section>
+
+        <section id="lua-functions">
+            <h2>函数</h2>
+            <pre><code><span class="cmt">-- 标准定义</span>
+<span class="kw">function</span> <span class="fn">add</span>(a, b)
+  <span class="kw">return</span> a + b
+<span class="kw">end</span>
+
+<span class="cmt">-- 匿名函数</span>
+f = <span class="kw">function</span>(x) <span class="kw">return</span> x * <span class="num">2</span> <span class="kw">end</span>
+
+<span class="cmt">-- 语法糖</span>
+<span class="kw">function</span> t.a.b.c.f() <span class="cmt">-- 等价于 t.a.b.c.f = function() end</span> <span class="kw">end</span>
+
+<span class="cmt">-- local function 递归安全</span>
+<span class="kw">local function</span> <span class="fn">f</span>() <span class="cmt">-- 等价于 local f; f = function() end（非 local f = function() end）</span> <span class="kw">end</span>
+
+<span class="cmt">-- 方法（隐式 self）</span>
+<span class="kw">function</span> obj:method(x) <span class="cmt">-- 等价于 obj.method = function(self, x) end</span> <span class="kw">end</span>
+
+<span class="cmt">-- 可变参数</span>
+<span class="kw">function</span> <span class="fn">print_all</span>(...)
+  <span class="kw">local</span> args = {...}
+  <span class="kw">for</span> i, v <span class="kw">in</span> <span class="fn">ipairs</span>(args) <span class="kw">do</span> <span class="fn">print</span>(v) <span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="cmt">-- 函数调用：一个参数且为字符串或表时可省略括号</span>
+<span class="fn">print</span> <span class="str">"hello"</span>      <span class="cmt">-- 等价于 print("hello")</span>
+<span class="fn">type</span>{}              <span class="cmt">-- 等价于 type({})</span></code></pre>
+            <p>参数不足补 nil，多余忽略。<code>return func(args)</code> 触发尾调用优化（无栈限制，但删除调试信息）。</p>
+        </section>
+
+        <section id="lua-table">
+            <h2>表</h2>
+            <pre><code><span class="cmt">-- 空表</span>
+t = {}
+
+<span class="cmt">-- 数组风格</span>
+days = {<span class="str">"Mon"</span>, <span class="str">"Tue"</span>, <span class="str">"Wed"</span>}
+
+<span class="cmt">-- 记录风格</span>
+person = {name = <span class="str">"Alice"</span>, age = <span class="num">30</span>}
+
+<span class="cmt">-- 混合</span>
+a = {<span class="str">"x"</span>, <span class="str">"y"</span>, name = <span class="str">"test"</span>, [<span class="num">10</span>] = <span class="str">"ten"</span>}
+
+<span class="cmt">-- 索引从 1 开始</span>
+<span class="fn">print</span>(days[<span class="num">1</span>])       <span class="cmt">-- "Mon"</span>
+<span class="fn">print</span>(person.name)   <span class="cmt">-- "Alice"</span>
+<span class="fn">print</span>(#days)         <span class="cmt">-- 3</span></code></pre>
+            <p>最后一个表达式如果是函数调用或可变参数，所有返回值依次进入列表。构造子中域的赋值次序未定义。</p>
+        </section>
+
+        <section id="lua-scope">
+            <h2>可见性规则</h2>
+            <p>Lua 是词法作用域。局部变量从声明后第一个语句开始可见，到包含声明的最内层语句块末尾结束。</p>
+            <pre><code>x = <span class="num">10</span>
+<span class="kw">do</span>
+  <span class="kw">local</span> x = x      <span class="cmt">-- 新 x，值为外部 x（10）</span>
+  <span class="fn">print</span>(x)           <span class="cmt">--> 10</span>
+  x = x + <span class="num">1</span>
+  <span class="kw">do</span>
+    <span class="kw">local</span> x = x + <span class="num">1</span>
+    <span class="fn">print</span>(x)         <span class="cmt">--> 12</span>
+  <span class="kw">end</span>
+  <span class="fn">print</span>(x)           <span class="cmt">--> 11</span>
+<span class="kw">end</span>
+<span class="fn">print</span>(x)             <span class="cmt">--> 10</span></code></pre>
+            <p>内层函数使用的局部变量称为上值（外部局部变量）。每次执行 local 语句都创建新的局部变量。</p>
+        </section>
+
+        <section id="lua-metatable">
+            <h2>元表与元方法</h2>
+            <p>元表是一个普通表，定义值在特定操作下的行为。<code>setmetatable(t, mt)</code> 设置，<code>getmetatable(t)</code> 获取。表和完全用户数据有独立元表，其它类型按类型共享。</p>
+            <h4>算术与位运算</h4>
+            <table>
+                <tr>
+                    <th>键</th>
+                    <th>操作</th>
+                    <th>键</th>
+                    <th>操作</th>
+                </tr>
+                <tr>
+                    <td><code>__add</code></td>
+                    <td>+ 加</td>
+                    <td><code>__band</code></td>
+                    <td>& 位与</td>
+                </tr>
+                <tr>
+                    <td><code>__sub</code></td>
+                    <td>- 减</td>
+                    <td><code>__bor</code></td>
+                    <td>| 位或</td>
+                </tr>
+                <tr>
+                    <td><code>__mul</code></td>
+                    <td>* 乘</td>
+                    <td><code>__bxor</code></td>
+                    <td>~ 位异或</td>
+                </tr>
+                <tr>
+                    <td><code>__div</code></td>
+                    <td>/ 除</td>
+                    <td><code>__bnot</code></td>
+                    <td>~ 位非</td>
+                </tr>
+                <tr>
+                    <td><code>__mod</code></td>
+                    <td>% 取模</td>
+                    <td><code>__shl</code></td>
+                    <td>&lt;&lt; 左移</td>
+                </tr>
+                <tr>
+                    <td><code>__pow</code></td>
+                    <td>^ 乘方</td>
+                    <td><code>__shr</code></td>
+                    <td>>> 右移</td>
+                </tr>
+                <tr>
+                    <td><code>__unm</code></td>
+                    <td>- 取负</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>__idiv</code></td>
+                    <td>// 取整除</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+            <h4>比较与连接</h4>
+            <table>
+                <tr>
+                    <th>键</th>
+                    <th>操作</th>
+                </tr>
+                <tr>
+                    <td><code>__eq</code></td>
+                    <td>== 等于（仅两表或两完全用户数据且不原始相等时触发）</td>
+                </tr>
+                <tr>
+                    <td><code>__lt</code></td>
+                    <td>&lt; 小于（仅两值不全为整数也不全为字符串时触发）</td>
+                </tr>
+                <tr>
+                    <td><code>__le</code></td>
+                    <td>&lt;= 小于等于（找不到则用 __lt 取反）</td>
+                </tr>
+                <tr>
+                    <td><code>__concat</code></td>
+                    <td>.. 连接（操作数非字符串且非数字时触发）</td>
+                </tr>
+                <tr>
+                    <td><code>__len</code></td>
+                    <td># 取长度（非字符串时触发）</td>
+                </tr>
+            </table>
+            <h4>索引与调用</h4>
+            <table>
+                <tr>
+                    <th>键</th>
+                    <th>操作</th>
+                </tr>
+                <tr>
+                    <td><code>__index</code></td>
+                    <td>table[key]。可为函数(table, key)或表（按 key 索引该表）</td>
+                </tr>
+                <tr>
+                    <td><code>__newindex</code></td>
+                    <td>table[key]=value。可为函数(table, key, value)或表</td>
+                </tr>
+                <tr>
+                    <td><code>__call</code></td>
+                    <td>func(args)。func 为非函数时触发，func 作为第一个参数</td>
+                </tr>
+                <tr>
+                    <td><code>__gc</code></td>
+                    <td>垃圾回收终结器</td>
+                </tr>
+                <tr>
+                    <td><code>__mode</code></td>
+                    <td>弱引用控制（"k" 弱键, "v" 弱值, "kv" 均弱）</td>
+                </tr>
+                <tr>
+                    <td><code>__tostring</code></td>
+                    <td>tostring 调用时使用</td>
+                </tr>
+            </table>
+            <pre><code><span class="cmt">-- OOP 示例</span>
+Vector = {}
+Vector.__index = Vector
+
+<span class="kw">function</span> <span class="fn">Vector.new</span>(x, y)
+  <span class="kw">return</span> <span class="fn">setmetatable</span>({x=x, y=y}, Vector)
+<span class="kw">end</span>
+
+Vector.__add = <span class="kw">function</span>(a, b)
+  <span class="kw">return</span> <span class="fn">Vector.new</span>(a.x+b.x, a.y+b.y)
+<span class="kw">end</span>
+
+<span class="kw">function</span> <span class="fn">Vector.__tostring</span>(v)
+  <span class="kw">return</span> <span class="str">"("</span>..v.x..<span class="str">","</span>..v.y..<span class="str">")"</span>
+<span class="kw">end</span>
+
+v = <span class="fn">Vector.new</span>(<span class="num">1</span>,<span class="num">2</span>) + <span class="fn">Vector.new</span>(<span class="num">3</span>,<span class="num">4</span>)
+<span class="fn">print</span>(v)  <span class="cmt">--> (4,6)</span></code></pre>
+        </section>
+
+        <section id="lua-coroutine">
+            <h2>协程</h2>
+            <p>协程仅在显式 yield 时挂起，与操作系统线程无关。</p>
+            <pre><code><span class="kw">local</span> co = <span class="fn">coroutine.create</span>(<span class="kw">function</span>(a, b)
+  <span class="fn">print</span>(<span class="str">"co-body"</span>, a, b)
+  <span class="kw">local</span> r = <span class="fn">coroutine.yield</span>(a + b)
+  <span class="fn">print</span>(<span class="str">"co-body"</span>, r)
+  <span class="kw">return</span> <span class="str">"done"</span>
+<span class="kw">end</span>)
+
+<span class="fn">print</span>(<span class="fn">coroutine.resume</span>(co, <span class="num">1</span>, <span class="num">10</span>))  <span class="cmt">--> true 11</span>
+<span class="fn">print</span>(<span class="fn">coroutine.resume</span>(co, <span class="str">"r"</span>))    <span class="cmt">--> true done</span></code></pre>
+            <table>
+                <tr>
+                    <th>函数</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td><code>coroutine.create(f)</code></td>
+                    <td>创建协程，返回 thread</td>
+                </tr>
+                <tr>
+                    <td><code>coroutine.resume(co, ...)</code></td>
+                    <td>启动/继续，返回 (true, ...) 或 (false, err)</td>
+                </tr>
+                <tr>
+                    <td><code>coroutine.yield(...)</code></td>
+                    <td>挂起，值传给 resume 返回</td>
+                </tr>
+                <tr>
+                    <td><code>coroutine.wrap(f)</code></td>
+                    <td>返回启动函数，错误直接传播</td>
+                </tr>
+                <tr>
+                    <td><code>coroutine.status(co)</code></td>
+                    <td>running / suspended / dead / normal</td>
+                </tr>
+                <tr>
+                    <td><code>coroutine.running()</code></td>
+                    <td>当前协程和是否主线程</td>
+                </tr>
+            </table>
+        </section>
+
+        <section id="lua-gc">
+            <h2>垃圾收集</h2>
+            <p>增量标记-扫描收集器。<code>collectgarbage(opt, ...)</code> 控制：</p>
+            <table>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td><code>"collect"</code></td>
+                    <td>完整收集循环</td>
+                </tr>
+                <tr>
+                    <td><code>"stop"</code></td>
+                    <td>停止收集器</td>
+                </tr>
+                <tr>
+                    <td><code>"restart"</code></td>
+                    <td>重启收集器</td>
+                </tr>
+                <tr>
+                    <td><code>"count"</code></td>
+                    <td>已用内存(KB)</td>
+                </tr>
+                <tr>
+                    <td><code>"step", size</code></td>
+                    <td>执行一步收集</td>
+                </tr>
+                <tr>
+                    <td><code>"setpause", v</code></td>
+                    <td>间歇率（200 = 内存翻倍时开始新循环）</td>
+                </tr>
+                <tr>
+                    <td><code>"setstepmul", v</code></td>
+                    <td>步进倍率（200 = 两倍速，默认值）</td>
+                </tr>
+            </table>
+            <p>终结器 <code>__gc</code> 在回收前调用，执行次序为标记次序的逆序。终结器可复活对象（放入全局变量永久复活）。关闭状态机时所有被标记对象的终结器按标记逆序调用。</p>
+            <p>弱表：键或值任一被回收，键值对移除。数字和轻量 C 函数不受 GC 管辖，不会从弱表移除。字符串无显式构造过程，也不会移除。</p>
+        </section>
+
+        <section id="lua-error">
+            <h2>错误处理</h2>
+            <pre><code><span class="kw">local</span> ok, err = <span class="fn">pcall</span>(<span class="kw">function</span>()
+  <span class="fn">error</span>(<span class="str">"出错了"</span>)
+<span class="kw">end</span>)
+<span class="kw">if not</span> ok <span class="kw">then</span> <span class="fn">print</span>(<span class="str">"错误:"</span>, err) <span class="kw">end</span>
+
+<span class="cmt">-- xpcall 带消息处理函数（可在栈展开前收集信息）</span>
+<span class="kw">local</span> ok, err = <span class="fn">xpcall</span>(
+  <span class="kw">function</span>() <span class="fn">error</span>(<span class="str">"oops"</span>) <span class="kw">end</span>,
+  <span class="kw">function</span>(e) <span class="kw">return</span> <span class="str">"处理:"</span>..e <span class="kw">end</span>
+)
+
+<span class="fn">assert</span>(<span class="fn">type</span>(x) == <span class="str">"number"</span>, <span class="str">"需要数字"</span>)</code></pre>
+            <p>错误对象可以是任何类型（不仅限于字符串）。消息处理函数本身也在保护模式下，递归过深会终止。</p>
+        </section>
+
+        <!-- 3 ==================== PART 3: LUA STANDARD LIBRARY ==================== -->
+
+        <section id="lib-basic">
+            <h2>基础函数</h2>
+            <p>标准库加载在全局环境中。</p>
+            <div class="api-list">
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> assert(v [, message])</div>
+                    <p class="desc">v 为假时抛出 message（默认 "assertion failed!"），否则返回所有参数。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> collectgarbage(opt [, arg])</div>
+                    <p class="desc">控制垃圾收集器。opt: "collect" / "stop" / "restart" / "count" / "step" / "setpause" / "setstepmul" / "isrunning" / "generational" / "incremental"。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> dofile(filename)</div>
+                    <p class="desc">打开并执行文件。无参数则执行标准输入。返回文件中最后一个表达式的所有值。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> error(message [, level])</div>
+                    <p class="desc">抛出错误。level 控制错误位置（1=调用者，0=不添加位置信息）。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> getmetatable(object)</div>
+                    <p class="desc">返回对象的元表。无元表返回 nil。有 __metatable 域则返回该域的值。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> ipairs(t)</div>
+                    <p class="desc">返回三个值：迭代器函数、表 t、0。按 1,2,3,... 顺序遍历，t[i] 为 nil 时停止。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> load(chunk [, chunkname [, mode [, env]]])</div>
+                    <p class="desc">加载代码块。chunk 为字符串或读取函数。mode: "b" 二进制 / "t" 文本 / "bt" 均可。返回编译后的函数或 nil + 错误消息。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> loadfile(filename [, mode [, env]])</div>
+                    <p class="desc">从文件加载代码块。无文件名则从标准输入读取。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> next(table [, index])</div>
+                    <p class="desc">遍历表的键。返回下一个键值对。index 为 nil 时返回第一个。遍历完返回 nil。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> pairs(t)</div>
+                    <p class="desc">返回三个值：next 函数、表 t、nil。遍历所有键值对（无序）。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> pcall(f [, arg1, ...])</div>
+                    <p class="desc">保护模式调用 f。成功返回 true + f 的返回值；失败返回 false + 错误对象。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> print(...)</div>
+                    <p class="desc">将每个参数转为字符串（用 tostring），以 tab 分隔输出，末尾换行。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> rawequal(v1, v2)</div>
+                    <p class="desc">不触发元方法地比较 v1 和 v2，返回 boolean。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> rawget(table, index)</div>
+                    <p class="desc">不触发元方法地获取 table[index]。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> rawlen(v)</div>
+                    <p class="desc">不触发元方法地返回表或字符串的长度。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> rawset(table, index, value)</div>
+                    <p class="desc">不触发元方法地设置 table[index] = value。table 必须是表，index 不能是 nil 或 NaN。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> select(index, ...)</div>
+                    <p class="desc">index 为数字时返回第 index 个之后的所有参数（支持负索引）。为 "#" 时返回额外参数总数。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> setmetatable(table, metatable)</div>
+                    <p class="desc">设置表的元表。metatable 为 nil 时移除元表。返回 table。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> tonumber(e [, base])</div>
+                    <p class="desc">将 e 转为数字。base 指定进制（2-36）。转换失败返回 nil。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> tostring(v)</div>
+                    <p class="desc">返回 v 的可读字符串表示。有 __tostring 元方法则调用它。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> type(v)</div>
+                    <p class="desc">返回 v 的类型字符串："nil" / "number" / "string" / "boolean" / "table" / "function" / "thread" / "userdata"。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> xpcall(f, msgh [, arg1, ...])</div>
+                    <p class="desc">类似 pcall，但带消息处理函数 msgh。错误时 msgh 在栈展开前调用。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> _G</div>
+                    <p class="desc">全局环境表（和 _ENV 默认值相同）。Lua 内部不使用。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> _VERSION</div>
+                    <p class="desc">包含当前 Lua 版本的字符串，如 "Lua 5.3"。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="lib-table">
+            <h2>表操作库</h2>
+            <div class="api-list">
+                <div class="api-item">
+                    <div class="sig"><span class="tag">table</span> table.concat(list [, sep [, i [, j]]])</div>
+                    <p class="desc">将 list[i] 到 list[j] 的字符串/数字以 sep（默认空串）连接返回。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">table</span> table.insert(list, [pos,] value)</div>
+                    <p class="desc">在 list[pos] 处插入 value，后续元素后移。pos 默认 #list+1。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">table</span> table.move(a1, f, e, t [, a2])</div>
+                    <p class="desc">将 a1[f..e] 移动到 a2[t..]。a2 默认 a1。可跨表移动。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">table</span> table.pack(...)</div>
+                    <p class="desc">返回以所有参数为值的表，额外字段 n 表示参数总数。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">table</span> table.remove(list [, pos])</div>
+                    <p class="desc">移除并返回 list[pos]，后续元素前移。pos 默认 #list。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">table</span> table.sort(list [, comp])</div>
+                    <p class="desc">原地排序。comp 默认为 &lt; 运算。comp(a,b) 为 true 时 a 排在 b 前。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">table</span> table.unpack(list [, i [, j]])</div>
+                    <p class="desc">返回 list[i] 到 list[j] 的所有元素。i 默认 1，j 默认 #list。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="lib-string">
+            <h2>字符串库</h2>
+            <p>字符串库对字符串值设置了元表，其 __index 指向 string 表，因此可用方法形式调用：<code>s:sub(1,3)</code>。</p>
+            <div class="api-list">
+                <div class="api-item">
+                    <div class="sig"><span class="tag">string</span> string.byte(s [, i [, j]])</div>
+                    <p class="desc">返回 s[i] 到 s[j] 的内部数值编码。i 默认 1，j 默认 i。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">string</span> string.char(...)</div>
+                    <p class="desc">接收零或多个整数，返回对应字符组成的字符串。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">string</span> string.dump(function [, strip])</div><code>二进制表示。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">string</span> string.find(s, pattern [, init [, plain]])</div>
+                    <p class="desc">查找 pattern。init 指定起始位置，plain 为 true 时关闭模式匹配。返回起止索引，未找到返回 nil。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">string</span> string.format(formatstring, ...)</div>
+                    <p class="desc">格式化输出。支持 %c %d %e %E %f %g %G %i %o %s %u %x %X %% 等。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">string</span> string.gmatch(s, pattern)</div>
+                    <p class="desc">返回迭代器函数，每次调用返回下一个匹配（及捕获）。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">string</span> string.gsub(s, pattern, repl [, n])</div>
+                    <p class="desc">将 s 中匹配 pattern 的子串替换为 repl（字符串/表/函数），最多 n 次（默认全部）。返回替换后的串和替换次数。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">string</span> string.len(s)</div>
+                    <p class="desc">返回长度（字节数），等价于 #s。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">string</span> string.lower(s) / string.upper(s)</div>
+                    <p class="desc">大小写转换。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">string</span> string.match(s, pattern [, init])</div>
+                    <p class="desc">查找第一个匹配，返回捕获值。无捕获返回整个匹配。未匹配返回 nil。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">string</span> string.rep(s, n [, sep])</div>
+                    <p class="desc">返回 s 重复 n 次的串，用 sep（默认空串）连接。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">string</span> string.reverse(s)</div>
+                    <p class="desc">反转字符串。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">string</span> string.sub(s, i [, j])</div>
+                    <p class="desc">返回 s[i..j]。j 默认 -1（到末尾）。支持负索引。</p>
+                </div>
+            </div>
+            <h4>模式匹配</h4>
+            <p>Lua 模式匹配不等同于正则表达式。主要模式：</p>
+            <table>
+                <tr>
+                    <th>模式</th>
+                    <th>含义</th>
+                </tr>
+                <tr>
+                    <td><code>.</code></td>
+                    <td>任意字符</td>
+                </tr>
+                <tr>
+                    <td><code>%a %c %d %l %p %s %u %w %x</code></td>
+                    <td>字母/控制符/数字/小写/标点/空白/大写/字母数字/十六进制</td>
+                </tr>
+                <tr>
+                    <td><code>%A %C ...</code></td>
+                    <td>对应的大写形式为补集</td>
+                </tr>
+                <tr>
+                    <td><code>[set] / [^set]</code></td>
+                    <td>字符集合/补集</td>
+                </tr>
+                <tr>
+                    <td><code>* + - ?</code></td>
+                    <td>0或多次/1或多次/0或多次(懒)/0或1次</td>
+                </tr>
+                <tr>
+                    <td><code>%n</code></td>
+                    <td>第 n 个捕获</td>
+                </tr>
+                <tr>
+                    <td><code>%bxy</code></td>
+                    <td>平衡配对（x 开始 y 结束）</td>
+                </tr>
+            </table>
+        </section>
+
+        <section id="lib-math">
+            <h2>数学库</h2>
+            <div class="api-list">
+                <div class="api-item">
+                    <div class="sig"><span class="tag">math</span> math.abs / ceil / floor / fmod / modf</div>
+                    <p class="desc">绝对值 / 向上取整 / 向下取整 / 浮点取模 / 分离整数和小数部分。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">math</span> math.exp / log / sqrt</div>
+                    <p class="desc">e 的幂 / 自然对数(可指定底) / 平方根。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">math</span> math.max(x, ...) / math.min(x, ...)</div>
+                    <p class="desc">最大/最小值。至少一个参数。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">math</span> math.random([m [, n]])</div>
+                    <p class="desc">无参数返回 [0,1) 浮点数。一个参数返回 [1,m] 整数。两个参数返回 [m,n] 整数。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">math</span> math.randomseed(x)</div>
+                    <p class="desc">设置随机数种子。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">math</span> math.sin / cos / tan / asin / acos / atan</div>
+                    <p class="desc">三角函数（弧度制）。atan(y,x) 返回 y/x 的反正切（象限感知）。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">math</span> math.deg / rad</div>
+                    <p class="desc">弧度转角度 / 角度转弧度。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">math</span> math.type(x)</div>
+                    <p class="desc">返回 "integer" / "float" / nil。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">math</span> math.tointeger(x)</div>
+                    <p class="desc">转为整数。无法转换返回 nil。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">math</span> math.ult(m, n)</div>
+                    <p class="desc">无符号整数比较 m &lt; n，返回 boolean。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">math</span> math.huge</div>
+                    <p class="desc">浮点数最大值（IEEE 754 inf）。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">math</span> math.pi / math.maxinteger / math.mininteger</div>
+                    <p class="desc">圆周率 / 整数最大值 / 整数最小值。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="lib-io">
+            <h2>I/O 库</h2>
+            <p>提供两种操作模式：简单模式（使用隐式文件句柄）和完整模式（显式文件句柄）。</p>
+            <div class="api-list">
+                <div class="api-item">
+                    <div class="sig"><span class="tag">io</span> io.open(filename [, mode])</div>
+                    <p class="desc">打开文件。mode: "r" "w" "a" "r+" "w+" "a+" "b" 附加。返回文件句柄或 nil + 错误。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">io</span> io.close([file])</div>
+                    <p class="desc">关闭文件。无参数关闭默认输出文件。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">io</span> io.read(...)</div>
+                    <p class="desc">从默认输入读取。格式：*n(数字) *a(全部) *l(行,默认) L(行含换行) 数字(字节数)。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">io</span> io.write(...)</div>
+                    <p class="desc">向默认输出写入。无自动分隔符和换行。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">io</span> io.lines([filename [, ...]])</div>
+                    <p class="desc">返回迭代器，逐行读取。无参数读默认输入。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">io</span> io.type(obj)</div>
+                    <p class="desc">返回 "file" / "closed file" / nil。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">io</span> io.input([file]) / io.output([file])</div>
+                    <p class="desc">设置默认输入/输出文件。参数为文件名或文件句柄。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">file</span> file:read(...) / file:write(...) / file:close() / file:lines()</div>
+                    <p class="desc">文件句柄方法，同 io.read/write/close/lines。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">file</span> file:seek([whence [, offset]])</div>
+                    <p class="desc">获取/设置文件位置。whence: "set" "cur" "end"。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">file</span> file:flush()</div>
+                    <p class="desc">将缓冲数据写入文件。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">file</span> file:setvbuf(mode [, size])</div>
+                    <p class="desc">设置输出缓冲模式："no" "full" "line"。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="lib-os">
+            <h2>操作系统库</h2>
+            <div class="api-list">
+                <div class="api-item">
+                    <div class="sig"><span class="tag">os</span> os.clock()</div>
+                    <p class="desc">返回程序使用的 CPU 时间（秒）。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">os</span> os.date([format [, time]])</div>
+                    <p class="desc">格式化日期时间。format 为 "*t" 返回表，为格式字符串则按 strftime 格式化。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">os</span> os.difftime(t2, t1)</div>
+                    <p class="desc">返回 t2 - t1（秒）。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">os</span> os.time([table])</div>
+                    <p class="desc">无参数返回当前时间戳。传入日期表返回对应时间戳。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">os</span> os.execute([command])</div>
+                    <p class="desc">执行系统命令。无参数返回是否有 shell。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">os</span> os.exit([code [, close]])</div>
+                    <p class="desc">终止宿主程序。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">os</span> os.getenv(varname)</div>
+                    <p class="desc">返回环境变量值。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">os</span> os.remove(filename) / os.rename(oldname, newname)</div>
+                    <p class="desc">删除/重命名文件。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">os</span> os.tmpname()</div>
+                    <p class="desc">返回可用的临时文件名。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="lib-debug">
+            <h2>调试库</h2>
+            <p>提供反射接口，不应作为常规编程工具。</p>
+            <div class="api-list">
+                <div class="api-item">
+                    <div class="sig"><span class="tag">debug</span> debug.getinfo([thread,] f [, what])</div>
+                    <p class="desc">返回函数信息表。what 控制返回字段："n" 名字 "S" 源 "l" 行 "u" 上值 "f" 函数 "L" 有效行。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">debug</span> debug.getlocal([thread,] f, local)</div>
+                    <p class="desc">返回栈上函数 f 的第 local 个局部变量的名字和值。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">debug</span> debug.getupvalue(f, up)</div>
+                    <p class="desc">返回函数 f 的第 up 个上值的名字和值。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">debug</span> debug.setlocal([thread,] level, local, value)</div>
+                    <p class="desc">设置栈上函数的局部变量。返回变量名或 nil。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">debug</span> debug.setupvalue(f, up, value)</div>
+                    <p class="desc">设置函数的上值。返回变量名或 nil。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">debug</span> debug.getmetatable(value)</div>
+                    <p class="desc">返回 value 的元表，即使元表有 __metatable 也返回。用于绕过保护。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">debug</span> debug.setmetatable(value, table)</div>
+                    <p class="desc">设置 value 的元表。返回 boolean。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">debug</span> debug.traceback([thread,] [message [, level]])</div>
+                    <p class="desc">返回调用栈回溯字符串。message 前缀到栈顶。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">debug</span> debug.sethook([thread,] hook, mask [, count])</div>
+                    <p class="desc">设置钩子函数。mask: "c" 调用 "r" 返回 "l" 行。count 指定每 count 条指令触发。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">debug</span> debug.gethook([thread])</div>
+                    <p class="desc">返回当前钩子函数、掩码和计数。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 。 ==================== PART 4: ANDROLUA ==================== -->
+
+        <section id="al-import">
+            <h2>导入模块</h2>
+            <pre><code><span class="kw">require</span> <span class="str">"import"</span>        <span class="cmt">-- 每个脚本开头必须</span>
+
+<span class="kw">import</span> <span class="str">"http"</span>            <span class="cmt">-- 载入内置模块</span>
+<span class="kw">import</span> <span class="str">"android.widget.*"</span>  <span class="cmt">-- 载入包中所有类</span>
+<span class="kw">import</span> <span class="str">"android.widget.Button"</span>  <span class="cmt">-- 载入单个类</span>
+
+<span class="cmt">-- 导入内部类（多种写法）</span>
+<span class="kw">import</span> <span class="str">"android.view.View_*"</span>
+<span class="kw">import</span> <span class="str">"android.view.View_OnClickListener"</span>
+View.OnClickListene</code></pre>
+            <p>包名和类名必须用引号包围。</p>
+        </section>
+
+        <section id="al-method">
+            <h2>方法与属性</h2>
+            <pre><code><span class="cmt">-- getter/setter 简写</span>
+<span class="cmt">-- Java 的 getxxx 无参数与 setxxx 只有一个参数时可简写</span>
+button.<span class="fn">setText</span>(<span class="str">"按钮"</span>)
+button.Text = <span class="str">"按钮"</span>    <span class="cmt">-- 等价</span>
+
+x = button.X              <span class="cmt">-- 等价于 button.getX()</span></code></pre>
+        </section>
+
+        <section id="al-layout">
+            <h2>布局表</h2>
+            <p>使用布局表须导入 android.view 与 android.widget 包。</p>
+            <pre><code><span class="kw">require</span> <span class="str">"import"</span>
+<span class="kw">import</span> <span class="str">"android.widget.*"</span>
+<span class="kw">import</span> <span class="str">"android.view.*"</span>
+
+<span class="cmt">-- 布局表格式</span>
+layout = {
+  控件名称,
+  id = 控件名称,
+  属性 = 值,
+  {
+    子控件名称,
+    id = 控件名称,
+    属性 = 值,
+  }
+}
+
+<span class="cmt">-- 完整示例</span>
+layout = {
+  LinearLayout,
+  orientation = <span class="str">"vertical"</span>,
+  backgroundColor = <span class="str">"#FFFFFF"</span>,
+  {
+    EditText,
+    id = <span class="str">"edit"</span>,
+    layout_width = <span class="str">"fill"</span>
+  },
+  {
+    Button,
+    text = <span class="str">"按钮"</span>,
+    layout_width = <span class="str">"fill"</span>,
+    onClick = <span class="str">"click"</span>
+  }
+}
+
+<span class="kw">function</span> <span class="fn">click</span>()
+  Toast.<span class="fn">makeText</span>(activity, edit.<span class="fn">getText</span>().<span class="fn">toString</span>(),
+    Toast.LENGTH_SHORT).<span class="fn">show</span>()
+<span class="kw">end</span>
+
+activity.<span class="fn">setContentView</span>(<span class="fn">loadlayout</span>(layout))</code></pre>
+            <p>布局表支持全部安卓控件属性。与 XML 布局的不同点：</p>
+            <ul>
+                <li>id 表示 Lua 中变量的名称，不是安卓的数字 id</li>
+                <li>ImageView 的 src 属性是当前目录图片名称或绝对文件路径图片或网络图片</li>
+                <li>layout_width 与 layout_height 支持 "fill" 与 "wrap" 简写</li>
+                <li>onClick 值为 Lua 函数或 Java onClick 接口或它们的全局变量名称</li>
+                <li>background 支持背景图片（本地路径或 URL）、背景色（backgroundColor 同，值为 "#十六进制颜色值"）与 LuaDrawable 自绘制背景</li>
+            </ul>
+
+            <h3>自绘制背景</h3>
+            <pre><code><span class="cmt">-- 绘制函数形式</span>
+<span class="kw">function</span> <span class="fn">draw</span>(canvas, paint)
+  canvas.<span class="fn">drawRect</span>(<span class="num">1</span>, <span class="num">1</span>, <span class="num">100</span>, <span class="num">100</span>, paint)
+<span class="kw">end</span>
+
+<span class="cmt">-- 自绘制背景参数为绘制函数或绘制函数的全局变量名称</span></code></pre>
+
+            <h3>loadlayout 保存引用</h3>
+            <pre><code>layout = {
+  LinearLayout,
+  layout_width = <span class="str">"fill"</span>,
+  {
+    TextView,
+    text = <span class="str">"AndroLua"</span>,
+    id = <span class="str">"tv"</span>
+  }
+}
+
+main = {}
+activity.<span class="fn">setContentView</span>(<span class="fn">loadlayout</span>(layout, lay))
+<span class="fn">print</span>(main.tv.<span class="fn">getText</span>())</code></pre>
+        </section>
+
+        <section id="al-canvas">
+            <h2>Canvas 绘图</h2>
+            <h3>原生 SurfaceView</h3>
+            <pre><code><span class="kw">require</span> <span class="str">"import"</span>
+<span class="kw">import</span> <span class="str">"android.app.*"</span>
+<span class="kw">import</span> <span class="str">"android.os.*"</span>
+<span class="kw">import</span> <span class="str">"android.widget.*"</span>
+<span class="kw">import</span> <span class="str">"android.view.*"</span>
+<span class="kw">import</span> <span class="str">"android.graphics.*"</span>
+
+activity.<span class="fn">setTitle</span>(<span class="str">'AndroLua'</span>)
+
+paint = <span class="fn">Paint</span>()
+paint.<span class="fn">setARGB</span>(<span class="num">100</span>, <span class="num">0</span>, <span class="num">250</span>, <span class="num">0</span>)
+paint.<span class="fn">setStrokeWidth</span>(<span class="num">20</span>)
+paint.<span class="fn">setTextSize</span>(<span class="num">28</span>)
+
+sureface = <span class="fn">SurfaceView</span>(activity)
+callback = <span class="fn">SurfaceHolder_Callback</span>{
+  surfaceChanged = <span class="kw">function</span>(holder, format, width, height)
+  <span class="kw">end</span>,
+  surfaceCreated = <span class="kw">function</span>(holder)
+    ca = holder.<span class="fn">lockCanvas</span>()
+    <span class="kw">if</span> (ca ~= <span class="kw">nil</span>) <span class="kw">then</span>
+      ca.<span class="fn">drawRGB</span>(<span class="num">0</span>, <span class="num">79</span>, <span class="num">90</span>)
+      ca.<span class="fn">drawRect</span>(<span class="num">0</span>, <span class="num">0</span>, <span class="num">200</span>, <span class="num">300</span>, paint)
+    <span class="kw">end</span>
+    holder.<span class="fn">unlockCanvasAndPost</span>(ca)
+  <span class="kw">end</span>,
+  surfaceDestroyed = <span class="kw">function</span>(holder)
+  <span class="kw">end</span>
+}
+holder = sureface.<span class="fn">getHolder</span>()
+holder.<span class="fn">addCallback</span>(callback)
+activity.<span class="fn">setContentView</span>(sureface)</code></pre>
+
+            <h3>canvas 模块</h3>
+            <pre><code><span class="kw">require</span> <span class="str">"import"</span>
+<span class="kw">import</span> <span class="str">"canvas"</span>
+<span class="kw">import</span> <span class="str">"android.app.*"</span>
+<span class="kw">import</span> <span class="str">"android.os.*"</span>
+<span class="kw">import</span> <span class="str">"android.widget.*"</span>
+<span class="kw">import</span> <span class="str">"android.view.*"</span>
+<span class="kw">import</span> <span class="str">"android.graphics.*"</span>
+
+activity.<span class="fn">setTitle</span>(<span class="str">'AndroLua'</span>)
+
+paint = <span class="fn">Paint</span>()
+paint.<span class="fn">setARGB</span>(<span class="num">100</span>, <span class="num">0</span>, <span class="num">250</span>, <span class="num">0</span>)
+paint.<span class="fn">setStrokeWidth</span>(<span class="num">20</span>)
+paint.<span class="fn">setTextSize</span>(<span class="num">28</span>)
+
+sureface = <span class="fn">SurfaceView</span>(activity)
+callback = <span class="fn">SurfaceHolder_Callback</span>{
+  surfaceChanged = <span class="kw">function</span>(holder, format, width, height)
+  <span class="kw">end</span>,
+  surfaceCreated = <span class="kw">function</span>(holder)
+    ca = canvas.<span class="fn">lockCanvas</span>(holder)
+    <span class="kw">if</span> (ca ~= <span class="kw">nil</span>) <span class="kw">then</span>
+      ca:<span class="fn">drawRGB</span>(<span class="num">0</span>, <span class="num">79</span>, <span class="num">90</span>)
+      ca:<span class="fn">drawRect</span>(<span class="num">0</span>, <span class="num">0</span>, <span class="num">200</span>, <span class="num">300</span>, paint)
+    <span class="kw">end</span>
+    canvas.<span class="fn">unlockCanvasAndPost</span>(holder, ca)
+  <span class="kw">end</span>,
+  surfaceDestroyed = <span class="kw">function</span>(holder)
+  <span class="kw">end</span>
+}
+holder = sureface.<span class="fn">getHolder</span>()
+holder.<span class="fn">addCallback</span>(callback)
+activity.<span class="fn">setContentView</span>(sureface)</code></pre>
+        </section>
+
+        <section id="al-opengl">
+            <h2>OpenGL</h2>
+            <p>通过 gl 模块使用 OpenGL ES 渲染。</p>
+            <pre><code><span class="kw">require</span> <span class="str">"import"</span>
+<span class="kw">import</span> <span class="str">"gl"</span>
+<span class="kw">import</span> <span class="str">"android.app.*"</span>
+<span class="kw">import</span> <span class="str">"android.os.*"</span>
+<span class="kw">import</span> <span class="str">"android.widget.*"</span>
+<span class="kw">import</span> <span class="str">"android.view.*"</span>
+<span class="kw">import</span> <span class="str">"android.opengl.*"</span>
+
+activity.<span class="fn">setTitle</span>(<span class="str">'AndroLua'</span>)
+<span class="cmt">-- activity.setTheme(android.R.style.Theme_Holo_Light_NoActionBar_Fullscreen)</span>
+
+mTriangleData = {
+  <span class="num">0.0</span>, <span class="num">0.6</span>, <span class="num">0.0</span>,
+  <span class="num">-0.6</span>, <span class="num">0.0</span>, <span class="num">0.0</span>,
+  <span class="num">0.6</span>, <span class="num">0.0</span>, <span class="num">0.0</span>,
+}
+mTriangleColor = {
+  <span class="num">1</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>,
+  <span class="num">0</span>, <span class="num">1</span>, <span class="num">0</span>, <span class="num">0</span>,
+  <span class="num">0</span>, <span class="num">0</span>, <span class="num">1</span>, <span class="num">0</span>,
+}
+
+sr = <span class="fn">GLSurfaceView.Renderer</span>{
+  onSurfaceCreated = <span class="kw">function</span>(gl2, config)
+    gl.<span class="fn">glDisable</span>(gl.GL_DITHER)
+    gl.<span class="fn">glHint</span>(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_FASTEST)
+    gl.<span class="fn">glClearColor</span>(<span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>)
+    gl.<span class="fn">glShadeModel</span>(gl.GL_SMOOTH)
+    gl.<span class="fn">glClearDepth</span>(<span class="num">1.0</span>)
+    gl.<span class="fn">glEnable</span>(gl.GL_DEPTH_TEST)
+    gl.<span class="fn">glDepthFunc</span>(gl.GL_LEQUAL)
+  <span class="kw">end</span>,
+  onDrawFrame = <span class="kw">function</span>(gl2, config)
+    gl.<span class="fn">glClear</span>(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+    gl.<span class="fn">glMatrixMode</span>(gl.GL_MODELVIEW)
+    gl.<span class="fn">glLoadIdentity</span>()
+    gl.<span class="fn">glRotate</span>(<span class="num">0</span>, <span class="num">1</span>, <span class="num">1</span>, <span class="num">1</span>)
+    gl.<span class="fn">glTranslate</span>(<span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>)
+    gl.<span class="fn">glEnableClientState</span>(gl.GL_VERTEX_ARRAY)
+    gl.<span class="fn">glEnableClientState</span>(gl.GL_COLOR_ARRAY)
+    gl.<span class="fn">glVertexPointer</span>(mTriangleData, <span class="num">3</span>)
+    gl.<span class="fn">glColorPointer</span>(mTriangleColor, <span class="num">4</span>)
+    gl.<span class="fn">glDrawArrays</span>(gl.GL_TRIANGLE_STRIP, <span class="num">0</span>, <span class="num">3</span>)
+    gl.<span class="fn">glFinish</span>()
+    gl.<span class="fn">glDisableClientState</span>(gl.GL_VERTEX_ARRAY)
+    gl.<span class="fn">glDisableClientState</span>(gl.GL_COLOR_ARRAY)
+  <span class="kw">end</span>,
+  onSurfaceChanged = <span class="kw">function</span>(gl2, w, h)
+    gl.<span class="fn">glViewport</span>(<span class="num">0</span>, <span class="num">0</span>, w, h)
+    gl.<span class="fn">glLoadIdentity</span>()
+    ratio = w / h
+    gl.<span class="fn">glFrustum</span>(-ratio, ratio, <span class="num">-1</span>, <span class="num">1</span>, <span class="num">1</span>, <span class="num">10</span>)
+  <span class="kw">end</span>
+}
+
+glSurefaceView = <span class="fn">GLSurfaceView</span>(activity)
+glSurefaceView.<span class="fn">setRenderer</span>(sr)
+activity.<span class="fn">setContentView</span>(glSurefaceView)</code></pre>
+        </section>
+
+        <section id="al-event">
+            <h2>事件与回调</h2>
+            <pre><code><span class="cmt">-- 方式一：创建事件处理函数，添加到接口，注册到组件</span>
+<span class="kw">function</span> <span class="fn">click</span>(s)
+  <span class="fn">print</span>(<span class="str">"点击"</span>)
+<span class="kw">end</span>
+listener = View.OnClickListener{onClick = click}
+button.<span class="fn">setOnClickListener</span>(listener)
+
+<span class="cmt">-- 方式二：匿名函数</span>
+button.<span class="fn">setOnClickListener</span>(View.OnClickListener {
+  onClick = <span class="kw">function</span>(s)
+    <span class="fn">print</span>(<span class="str">"点击"</span>)
+  <span class="kw">end</span>
+})</code></pre>
+        </section>
+
+        <section id="al-array">
+            <h2>使用数组</h2>
+            <pre><code><span class="cmt">-- 创建浮点数组</span>
+array = <span class="fn">float</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+
+<span class="cmt">-- 创建整数数组（指定长度）</span>
+array = <span class="fn">int</span>[<span class="num">10</span>]
+
+<span class="cmt">-- 访问（索引从 0 开始）</span>
+a = array[<span class="num">0</span>]
+array[<span class="num">0</span>] = <span class="num">4</span></code></pre>
+        </section>
+
+        <section id="al-thread">
+            <h2>线程与异步</h2>
+            <h3>异步任务</h3>
+            <pre><code><span class="cmt">-- task(str, args, callback)</span>
+<span class="cmt">-- str 为任务执行代码，args 为参数，callback 为回调函数</span>
+<span class="cmt">-- 任务返回值将传递到回调方法</span>
+<span class="cmt">-- 参数类型：布尔，数值，字符串，Java对象，不允许Lua对象</span>
+
+func = [[
+  <span class="kw">require</span> <span class="str">"import"</span>
+  a, b = ...
+  <span class="fn">print</span>(a, b)
+  <span class="kw">return</span> a + b
+]]
+<span class="fn">task</span>(func, <span class="num">1</span>, <span class="num">2</span>, <span class="fn">print</span>)</code></pre>
+
+            <h3>线程</h3>
+            <pre><code><span class="cmt">-- t = thread(str, args)</span>
+<span class="cmt">-- str 为线程中执行的代码或脚本的相对路径（不加扩展名）</span>
+<span class="cmt">-- args 为初始传入参数</span>
+<span class="cmt">-- 线程需要调用 quit 方法结束线程</span>
+
+func = [[
+  a, b = ...
+  <span class="kw">function</span> add()
+    <span class="fn">call</span>(<span class="str">"print"</span>, a + b)
+  <span class="kw">end</span>
+]]
+t = <span class="fn">thread</span>(func, <span class="num">1</span>, <span class="num">2</span>)
+
+<span class="cmt">-- 调用线程中方法</span>
+<span class="fn">call</span>(t, <span class="str">"add"</span>)        <span class="cmt">-- t 为线程，fn 为方法名，args 为参数</span>
+
+<span class="cmt">-- 设置线程变量</span>
+<span class="fn">set</span>(t, <span class="str">"var"</span>, value)  <span class="cmt">-- t 为线程，fn 为变量名，arg 为值</span>
+
+<span class="cmt">-- 线程中调用主线程方法</span>
+<span class="fn">call</span>(<span class="str">"print"</span>, result)  <span class="cmt">-- fn 为方法名，args 为参数</span>
+
+<span class="cmt">-- 线程中设置主线程变量</span>
+<span class="fn">set</span>(<span class="str">"var"</span>, value)      <span class="cmt">-- fn 为变量名，arg 为值</span>
+
+t.<span class="fn">quit</span>()</code></pre>
+            <p>注：参数类型为字符串、数值、Java 对象、布尔值与 nil。</p>
+        </section>
+
+        <section id="al-modules">
+            <h2>内置模块</h2>
+            <h3>http</h3>
+            <pre><code>body, cookie, code, headers = <span class="fn">http.get</span>(url [, cookie])
+body, cookie, code, headers = <span class="fn">http.post</span>(url, postdata [, cookie])</code></pre>
+            <h3>其它模块</h3>
+            <table>
+                <tr>
+                    <th>模块</th>
+                    <th>功能</th>
+                </tr>
+                <tr>
+                    <td><code>cjson</code></td>
+                    <td>JSON 编解码</td>
+                </tr>
+                <tr>
+                    <td><code>bson</code></td>
+                    <td>BSON 序列化</td>
+                </tr>
+                <tr>
+                    <td><code>md5</code></td>
+                    <td>MD5 哈希计算</td>
+                </tr>
+                <tr>
+                    <td><code>zlib</code></td>
+                    <td>数据压缩/解压</td>
+                </tr>
+                <tr>
+                    <td><code>socket</code></td>
+                    <td>TCP/UDP 网络通信</td>
+                </tr>
+                <tr>
+                    <td><code>ftp</code></td>
+                    <td>FTP 文件传输</td>
+                </tr>
+                <tr>
+                    <td><code>smtp</code></td>
+                    <td>邮件发送</td>
+                </tr>
+                <tr>
+                    <td><code>xml</code></td>
+                    <td>XML 解析</td>
+                </tr>
+                <tr>
+                    <td><code>sensor</code></td>
+                    <td>传感器访问</td>
+                </tr>
+            </table>
+        </section>
+
+        <section id="al-api">
+            <h2>核心 API 参考</h2>
+            <p>[a] 表示参数 a 可选，(...) 表示不定参数。函数调用在只有一个参数且参数为字符串或表时可以省略括号。-- 表示注释。</p>
+            <p>类型标记：<code>s</code> 字符串 <code>i</code> 整数 <code>n</code> 浮点数或整数 <code>t</code> 表 <code>b</code> 布尔 <code>o</code> Java 对象 <code>f</code> Lua 函数</p>
+
+            <div class="api-list">
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> each(o)</div>
+                    <p class="desc">参数：o 实现 Iterator 接口的 Java 对象。返回：用于 Lua 迭代的闭包。作用：Java 集合迭代器。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> enum(o)</div>
+                    <p class="desc">参数：o 实现 Enumeration 接口的 Java 对象。返回：用于 Lua 迭代的闭包。作用：Java 集合迭代器。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> import(s)</div>
+                    <p class="desc">参数：s 要载入的包或类的名称。返回：载入的类或模块。作用：载入包或类或 Lua 模块。例：<code>import "http"</code> 载入模块；<code>import "android.widget.*"</code> 载入包；<code>import "android.widget.Button"</code> 载入类；<code>import "android.view.View$OnClickListener"</code> 载入内部类。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> loadlayout(t [, t2])</div>
+                    <p class="desc">参数：t 要载入的布局表，t2 保存 view 的表。返回：布局最外层 view。作用：载入布局表，生成 view。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> loadbitmap(s)</div>
+                    <p class="desc">参数：s 要载入图片的地址，支持相对地址、绝对地址与网址。返回：bitmap 对象。作用：载入图片。注意：载入网络图片需要在线程中进行。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">异步</span> task(s [,...], f)</div>
+                    <p class="desc">参数：s 任务中运行的代码，... 传入参数，f 回调函数。返回：无返回值。作用：在异步线程运行 Lua 代码，执行完毕在主线程调用回调函数。注意：参数类型包括布尔、数值、字符串、Java 对象，不允许 Lua 对象。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">异步</span> thread(s[,...])</div>
+                    <p class="desc">参数：s 线程中运行的 lua 代码或脚本的相对路径（不加扩展名），... 传入参数。返回：线程对象。作用：开启一个线程运行 Lua 代码。注意：线程需要调用 quit 方法结束线程。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">全局</span> new_env()</div>
+                    <p class="desc">参数：无。返回：一个继承了 import 模块函数的环境表。作用：产生一个继承 import 模块函数的环境表。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">luajava</span> luajava.bindClass(s)</div>
+                    <p class="desc">参数：s class 的完整名称，支持基本类型。返回：Java class 对象。作用：载入 Java class。例：<code>Button = luajava.bindClass("android.widget.Button")</code> <code>int = luajava.bindClass("int")</code></p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">luajava</span> luajava.createProxy(s, t)</div>
+                    <p class="desc">参数：s 接口的完整名称，t 接口函数表。返回：Java 接口对象。作用：创建 Java 接口。例：<code>onclick = luajava.createProxy("android.view.View$OnClickListener", {onClick=function(v) print(v) end})</code></p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">luajava</span> luajava.createArray(s, t)</div>
+                    <p class="desc">参数：s 类的完整名称，支持基本类型，t 要转化为 Java 数组的表。返回：Java 数组对象。作用：创建 Java 数组。例：<code>arr = luajava.createArray("int", {1,2,3,4})</code></p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">luajava</span> luajava.newInstance(s [,...])</div>
+                    <p class="desc">参数：s 类的完整名称，... 构建方法的参数。作用：创建 Java 类的实例。例：<code>b = luajava.newInstance("android.widget.Button", activity)</code></p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">luajava</span> luajava.new(o[,...])</div>
+                    <p class="desc">参数：o Java 类对象，... 参数。返回：类的实例或数组对象或接口对象。作用：创建一个类实例或数组对象或接口对象。当只有一个参数且为表类型时：类对象为 interface 创建接口，为 class 创建数组，其他情况创建实例。例：<code>b = luajava.new(Button, activity)</code> <code>onclick = luajava.new(OnClickListener, {onClick=function(v) print(v) end})</code> <code>arr = luajava.new(int, {1,2,3})</code>（示例中假设已载入相关类）。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">luajava</span> luajava.coding(s [, s2 [, s3]])</div>
+                    <p class="desc">参数：s 要转换编码的 Lua 字符串，s2 原始编码，s3 目标编码。返回：转码后的 Lua 字符串。作用：转换字符串编码。注意：默认进行 GBK 转 UTF8。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">luajava</span> luajava.clear(o)</div>
+                    <p class="desc">参数：o Java 对象。返回：无。作用：销毁 Java 对象。注意：尽量避免使用此函数，除非确认不在使用此对象，且该对象比较大。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">luajava</span> luajava.astable(o)</div>
+                    <p class="desc">参数：o Java 对象。返回：Lua 表。作用：转换 Java 的 Array、ArrayList 或 HashMap 为 Lua 表。</p>
+                </div>
+                <div class="api-item">
+                    <div class="sig"><span class="tag">luajava</span> luajava.tostring(o)</div>
+                    <p class="desc">参数：o Java 对象。返回：Lua 字符串。作用：相当于 o.toString()。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="al-pack">
+            <h2>打包发布</h2>
+            <p>新建工程或在脚本目录新建 init.lua 文件。写入以下内容，即可将文件夹下所有 lua 文件打包，main.lua 为程序入口。</p>
+            <pre><code>appname = <span class="str">"demo"</span>
+appver = <span class="str">"1.0"</span>
+packagename = <span class="str">"com.androlua.demo"</span></code></pre>
+            <p>目录下 icon.png 替换图标，welcome.png 替换启动图。没有 init.lua 文件打包当前文件。打包使用 debug 签名。</p>
+        </section>
+
+    </div>
+
+    <footer>
+        POWER BY ULTIMATE TRITIUM DESIGN<br>
+        AndroLua — 基于 libluajava 的轻量安卓脚本引擎
+    </footer>
+
+    <script>
+        const links = document.querySelectorAll('.sidebar a[href^="#"]');
+        const sections = [];
+        links.forEach(a => { const id = a.getAttribute('href').slice(1); const el = document.getElementById(id); if (el) sections.push({ el, a }); });
+        function update() { let cur = sections[0]; for (const s of sections) { if (s.el.getBoundingClientRect().top <= 100) cur = s; } links.forEach(a => a.classList.remove('active')); if (cur) cur.a.classList.add('active'); }
+        window.addEventListener('scroll', update, { passive: true }); update();
+    </script>
+
+</body>
+
+</html>
