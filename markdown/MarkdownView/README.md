@@ -10,7 +10,7 @@
 
 
 
-> 继承自 `WebView` 的 Markdown 渲染控件，编译为独立 `classes.dex`，供 AndroLua `loadDex` 加载。
+> 继承自 `WebView` 的 Markdown 渲染控件，编译为独立 `classes.dex`，供 AndroLua `loadDex` 加载。当前版本 **v1.5.4**。
 
 - **完全离线**：vendor JS（marked 12 / highlight.js 11 / KaTeX 0.16）已 ES5 转译、KaTeX 20 个字体 data URI 内联，单 dex 无任何外部依赖
 - **双内置样式**：ULTRIUMA（默认）/ GitHub（Primer 风格），均带完整亮暗双主题
@@ -145,6 +145,73 @@ mdv.setMarkdownStyle(null); // 清除自定义层
 
 本地图片（`![alt](相对/绝对路径)`）自动转 Base64 内联，相对路径基于 `loadFromFile` 的文件父目录解析；支持 png/jpg/jpeg/gif/webp/bmp/svg/ico/avif，未知扩展名兜底 `application/octet-stream`。`img.shields.io` 徽章自动识别为内联小图（3px 圆角、紧凑边距、不独立成行）。
 
+
+### 导出（Export）— v1.5.4 新增
+
+导出功能以安全形态暴露：格式通过 `setExportFormat(int)` 设置，回调通过 `doExportAndCallback(Object)` 传入。全部主线程执行，不新开线程。
+
+**方法：**
+
+| 方法 | 说明 |
+| --- | --- |
+| `setExportFormat(int)` | 设置导出格式（默认 `EXPORT_FORMAT_MARKDOWN`）；配合 `doExportAndCallback` 使用 |
+| `getExportFormat()` | 读取当前导出格式 |
+| `doExportAndCallback(Object callback)` | 统一导出入口；callback 以 Object 接收（绕开 LuaJava 对接口参数的内联匹配限制），内部转型为 ExportCallback；非 ExportCallback 实例 Toast 提示并返回 |
+
+**格式常量：**
+
+| 常量 | 值 | 说明 |
+| --- | --- | --- |
+| `EXPORT_FORMAT_MARKDOWN` | 1 | 返回原始 markdown 源码 |
+| `EXPORT_FORMAT_TEXT` | 2 | 返回去语法纯文本（`MarkdownCounter.stripMarkdown`） |
+| `EXPORT_FORMAT_HTML` | 3 | 返回自包含完整 HTML 文档（内联全部当前生效 `<style>` + `data-theme` + 渲染正文） |
+| `EXPORT_FORMAT_IMAGE` | 4 | 截图 PNG 写 `getExternalCacheDir()/markdownview_export_<ts>.png`（外置缓存，可分享；不可用回退内部 `cacheDir`），回调返回文件绝对路径 |
+| `EXPORT_FORMAT_BITMAP` | 5 | 直接返回 `android.graphics.Bitmap` 对象（`onExport(int, Bitmap)` 重载） |
+
+未知 format 回调 `-1, "unknown EXPORT_FORMAT: N"`。
+
+**ExportCallback 两个 onExport 重载：**
+
+| 签名 | 触发 | content / bitmap 含义 |
+| --- | --- | --- |
+| `void onExport(int code, String content)` | MARKDOWN / TEXT / HTML / IMAGE 成功，或任意格式失败 | 成功：code = `EXPORT_FORMAT_*`，content = 文本（MARKDOWN/TEXT/HTML）或缓存文件绝对路径（IMAGE）；失败：code = -1，content = 错误描述 |
+| `void onExport(int format, Bitmap bitmap)` | 仅 BITMAP 成功 | bitmap 为截图的 Bitmap 对象 |
+
+两个 `onExport` 为同名重载：回调方向（Java → Lua）由 LuaJ 按方法名绑定，单个 Lua 函数即可同时接收文本/路径与 Bitmap 分支，按第二参类型分流（`type(b) == "string"` 判文本分支）。
+
+> 除 HTML 需页面就绪外，BITMAP / IMAGE 还需视图已完成布局（`getWidth/Height > 0`），否则回调 `-1, "view not laid out"`。
+
+**导出示例：**
+
+```lua
+require "import"
+import "com.ocssfun.markdown.*"
+import "com.ocssfun.markdown.MarkdownView"
+
+local mdv = MarkdownView(activity)
+frame.addView(mdv)
+mdv.setMarkdownText("# Hello\n\nExport demo")
+
+-- 导出为 HTML
+mdv.setExportFormat(MarkdownView.EXPORT_FORMAT_HTML)
+mdv.doExportAndCallback({
+  onExport = function(code, content)
+    if code == MarkdownView.EXPORT_FORMAT_HTML then
+      print("HTML length: " .. #content)
+    elseif code == -1 then
+      print("Error: " .. content)
+    end
+  end,
+  onExport = function(format, bitmap)
+    -- bitmap 分支（EXPORT_FORMAT_BITMAP 时触发）
+    print("Got bitmap: " .. bitmap.getWidth() .. "x" .. bitmap.getHeight())
+  end
+})
+
+-- 导出为文件
+mdv.setExportFormat(MarkdownView.EXPORT_FORMAT_IMAGE)
+mdv.doExportAndCallback(callback)
+```
 
 ## 已知限制
 
