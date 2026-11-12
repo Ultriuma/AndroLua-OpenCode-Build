@@ -1,6 +1,8 @@
+# ULTRIUMA AndroLua Native Enhancement Libraries
+
 ![PROJECT TRITIUM](https://github.com/Ultriuma/AndroLua-OpenCode-Build/blob/main/screenshot/PROJECT%20TRITIUM%20HM.png?raw=true)
 
-# ULTRIUMA AndroLua Native Enhancement Libraries
+---
 
 [![LICENSE](https://img.shields.io/github/license/ULTRIUMA/AndroLua-OpenCode-Build.svg)](LICENSE)
 [![releases](https://img.shields.io/github/v/tag/ULTRIUMA/AndroLua-OpenCode-Build?color=C71D23&label=Releases&logo=github)](https://github.com/ULTRIUMA/AndroLua-OpenCode-Build/releases)
