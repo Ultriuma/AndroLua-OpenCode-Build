@@ -1,3 +1,5 @@
+![PROJECT TRITIUM](https://github.com/Ultriuma/AndroLua-OpenCode-Build/blob/main/screenshot/PROJECT%20TRITIUM%20HM.png?raw=true)
+
 # ULTRIUMA AndroLua Native Enhancement Libraries
 
 [![LICENSE](https://img.shields.io/github/license/ULTRIUMA/AndroLua-OpenCode-Build.svg)](LICENSE)
@@ -9,8 +11,6 @@
 [![](https://img.shields.io/badge/foxmail-hainacloud-F9CF40?logo=email)](mailto://hainacloud@foxmail.com)
 [![](https://img.shields.io/badge/Telegram-ULTRIUMA-0099FF?logo=telegram)](https://t.me/ULTRIUMA)
 
----
-![PROJECT TRITIUM](https://github.com/Ultriuma/AndroLua-OpenCode-Build/blob/main/screenshot/PROJECT%20TRITIUM%20HM.png?raw=true)
 ---
 
 > 一套面向 **AndroLua / Lua** 的 Android 原生增强资源，由 **ULTRIUMA** 编译维护。
