@@ -10,7 +10,7 @@
 [![](https://img.shields.io/badge/Telegram-ULTRIUMA-0099FF?logo=telegram)](https://t.me/ULTRIUMA)
 
 ---
-![PROJECT TRITIUM](https://github.com/Ultriuma/AndroLua-OpenCode-Build/blob/main/screenshot/PROJECT TRITIUM HM.png?raw=true)
+![PROJECT TRITIUM](https://github.com/Ultriuma/AndroLua-OpenCode-Build/blob/main/screenshot/PROJECT%20TRITIUM%20HM.png?raw=true)
 ---
 
 > 一套面向 **AndroLua / Lua** 的 Android 原生增强资源，由 **ULTRIUMA** 编译维护。
